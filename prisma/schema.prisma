@@ -21,6 +21,21 @@ model User {
   course          String?   // Automatically derived from admission
   yearOfStudy     String?   // "Year 1", "Year 2", etc.
   
+  // Firms (Max 3)
+  firms           Firm[]
+  
+  // Off Days (stored as JSON string, e.g. '{"Monday": true, "Tuesday": false}')
+  offDays         String?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Firm {
+  id              String    @id @default(uuid())
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  
   // Firm Details
   firmName        String?
   firmEmail       String?
@@ -36,8 +51,8 @@ model User {
   startDate       DateTime?
   endDate         DateTime?
   
-  // Off Days (stored as JSON string, e.g. '{"Monday": true, "Tuesday": false}')
-  offDays         String?
+  // Assessment
+  assessmentDone  Boolean   @default(false)
   
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
