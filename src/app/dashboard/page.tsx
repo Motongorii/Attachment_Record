@@ -179,7 +179,6 @@ export default function DashboardPage() {
                   <option value="Year 2">Year 2</option>
                   <option value="Year 3">Year 3</option>
                   <option value="Year 4">Year 4</option>
-                  <option value="Option 1 (Other)">Option 1 (Other)</option>
                 </select>
               </div>
             </div>
