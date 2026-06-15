@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut, Save, User, Building, UserCheck, Calendar, BookOpen, Plus, Trash2 } from 'lucide-react';
+import { LogOut, Save, User, Building, UserCheck, Calendar, BookOpen, Plus, Trash2, CheckCircle } from 'lucide-react';
 
 export default function DashboardPage() {
   const [data, setData] = useState<any>(null);
   const [saving, setSaving] = useState(false);
+  const [showToast, setShowToast] = useState(false);
   const [locationSuggestions, setLocationSuggestions] = useState<{index: number, results: any[]}[]>([]);
   const [fetchingSuggestions, setFetchingSuggestions] = useState(false);
   const router = useRouter();
@@ -97,7 +98,8 @@ export default function DashboardPage() {
       body: JSON.stringify(data),
     });
     setSaving(false);
-    alert('Details saved successfully!');
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
   };
 
   const handleLogout = async () => {
@@ -317,6 +319,29 @@ export default function DashboardPage() {
           </div>
         </form>
       </div>
+
+      {/* Premium Toast Notification */}
+      {showToast && (
+        <div style={{
+          position: 'fixed', bottom: '2rem', right: '2rem', background: 'var(--surface-color)',
+          border: '1px solid var(--success-color)', borderLeft: '4px solid var(--success-color)',
+          padding: '1rem 1.5rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.75rem',
+          boxShadow: '0 10px 25px rgba(0,0,0,0.1)', zIndex: 1000,
+          animation: 'slideUp 0.3s ease forwards'
+        }}>
+          <CheckCircle size={20} color="var(--success-color)" />
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-color)' }}>Success</span>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Details saved successfully!</span>
+          </div>
+        </div>
+      )}
+      <style>{`
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </>
   );
 }
