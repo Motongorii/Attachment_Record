@@ -145,7 +145,7 @@ export default function AdminDashboard() {
       },
       didDrawPage: (data) => {
         // Footer pagination
-        const str = `Page ${doc.internal.getNumberOfPages()}`;
+        const str = `Page ${data.pageNumber}`;
         doc.setFontSize(8);
         doc.setTextColor(150);
         const pageSize = doc.internal.pageSize;
