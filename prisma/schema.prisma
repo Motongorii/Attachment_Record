@@ -39,8 +39,8 @@ model Firm {
   // Firm Details
   firmName        String?
   firmEmail       String?
-  firmCity        String?
-  firmLandmark    String?
+  firmCounty      String?
+  exactLocation   String?
   
   // Supervisor Details
   supervisorName  String?

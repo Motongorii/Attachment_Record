@@ -7,7 +7,17 @@ import { LogOut, Save, User, Building, UserCheck, Calendar, BookOpen, Plus, Tras
 export default function DashboardPage() {
   const [data, setData] = useState<any>(null);
   const [saving, setSaving] = useState(false);
+  const [locationSuggestions, setLocationSuggestions] = useState<{index: number, results: any[]}[]>([]);
+  const [fetchingSuggestions, setFetchingSuggestions] = useState(false);
   const router = useRouter();
+
+  const kenyaCounties = [
+    "Baringo", "Bomet", "Bungoma", "Busia", "Elgeyo Marakwet", "Embu", "Garissa", "Homa Bay", "Isiolo", "Kajiado",
+    "Kakamega", "Kericho", "Kiambu", "Kilifi", "Kirinyaga", "Kisii", "Kisumu", "Kitui", "Kwale", "Laikipia",
+    "Lamu", "Machakos", "Makueni", "Mandera", "Marsabit", "Meru", "Migori", "Mombasa", "Murang'a", "Nairobi",
+    "Nakuru", "Nandi", "Narok", "Nyamira", "Nyandarua", "Nyeri", "Samburu", "Siaya", "Taita Taveta", "Tana River",
+    "Tharaka Nithi", "Trans Nzoia", "Turkana", "Uasin Gishu", "Vihiga", "Wajir", "West Pokot"
+  ];
 
   useEffect(() => {
     fetch('/api/student')
@@ -40,7 +50,36 @@ export default function DashboardPage() {
     if (data.firms?.length > 1) {
       const updatedFirms = data.firms.filter((_: any, i: number) => i !== index);
       setData((prev: any) => ({ ...prev, firms: updatedFirms }));
+      setLocationSuggestions(prev => prev.filter(s => s.index !== index));
     }
+  };
+
+  let searchTimeout: NodeJS.Timeout;
+  const fetchSuggestions = async (query: string, firmIndex: number) => {
+    if (query.length < 3) {
+      setLocationSuggestions(prev => prev.filter(s => s.index !== firmIndex));
+      return;
+    }
+    setFetchingSuggestions(true);
+    try {
+      const county = data.firms[firmIndex]?.firmCounty || '';
+      const searchQuery = county ? `${query}, ${county}` : query;
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&countrycodes=ke&format=json&limit=5`);
+      const results = await res.json();
+      setLocationSuggestions(prev => {
+        const filtered = prev.filter(s => s.index !== firmIndex);
+        return [...filtered, { index: firmIndex, results }];
+      });
+    } catch(e) {
+      console.error(e);
+    }
+    setFetchingSuggestions(false);
+  };
+
+  const handleExactLocationChange = (index: number, val: string) => {
+    handleFirmChange(index, 'exactLocation', val);
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => fetchSuggestions(val, index), 800);
   };
 
   const handleOffDaysChange = (day: string, checked: boolean) => {
@@ -122,15 +161,15 @@ export default function DashboardPage() {
             <div className="grid-2">
               <div className="form-group">
                 <label>Full Name</label>
-                <input value={data.studentName || ''} onChange={e => handleChange('studentName', e.target.value)} required placeholder="John Doe" />
+                <input value={data.studentName || ''} onChange={e => handleChange('studentName', e.target.value)} required />
               </div>
               <div className="form-group">
                 <label>Email Address</label>
-                <input type="email" value={data.email || ''} onChange={e => handleChange('email', e.target.value)} required placeholder="student@example.com" />
+                <input type="email" value={data.email || ''} onChange={e => handleChange('email', e.target.value)} required />
               </div>
               <div className="form-group">
                 <label>Phone Number</label>
-                <input type="tel" value={data.phone || ''} onChange={e => handleChange('phone', e.target.value)} required placeholder="0712345678" />
+                <input type="tel" value={data.phone || ''} onChange={e => handleChange('phone', e.target.value)} required />
               </div>
               <div className="form-group">
                 <label>Year of Study</label>
@@ -164,21 +203,52 @@ export default function DashboardPage() {
                   <h4 style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}>Company Info</h4>
                   <div className="form-group" style={{ marginBottom: '1.25rem' }}>
                     <label>Firm Name</label>
-                    <input value={firm.firmName || ''} onChange={e => handleFirmChange(index, 'firmName', e.target.value)} required placeholder="Company Ltd" />
+                    <input value={firm.firmName || ''} onChange={e => handleFirmChange(index, 'firmName', e.target.value)} required />
                   </div>
                   <div className="grid-2" style={{ marginBottom: '1.25rem' }}>
                     <div className="form-group">
                       <label>Firm Email</label>
-                      <input type="email" value={firm.firmEmail || ''} onChange={e => handleFirmChange(index, 'firmEmail', e.target.value)} required placeholder="info@company.com" />
+                      <input type="email" value={firm.firmEmail || ''} onChange={e => handleFirmChange(index, 'firmEmail', e.target.value)} required />
                     </div>
                     <div className="form-group">
-                      <label>Town/City</label>
-                      <input value={firm.firmCity || ''} onChange={e => handleFirmChange(index, 'firmCity', e.target.value)} required placeholder="Nairobi" />
+                      <label>County</label>
+                      <select value={firm.firmCounty || ''} onChange={e => handleFirmChange(index, 'firmCounty', e.target.value)} required>
+                        <option value="">Select County...</option>
+                        {kenyaCounties.map(county => (
+                          <option key={county} value={county}>{county}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
-                  <div className="form-group" style={{ marginBottom: '1.25rem' }}>
-                    <label>Major Land Mark</label>
-                    <input value={firm.firmLandmark || ''} onChange={e => handleFirmChange(index, 'firmLandmark', e.target.value)} required placeholder="Near KICC" />
+                  <div className="form-group" style={{ marginBottom: '1.25rem', position: 'relative' }}>
+                    <label>Exact Location (Start typing to search)</label>
+                    <input 
+                      value={firm.exactLocation || ''} 
+                      onChange={e => handleExactLocationChange(index, e.target.value)} 
+                      required 
+                      placeholder="e.g. Westlands, Nairobi"
+                    />
+                    {fetchingSuggestions && <div style={{ position: 'absolute', right: '10px', top: '35px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Searching...</div>}
+                    {locationSuggestions.find(s => s.index === index)?.results && locationSuggestions.find(s => s.index === index)!.results.length > 0 && (
+                      <ul style={{
+                        position: 'absolute', top: '100%', left: 0, right: 0, background: 'var(--surface-color)',
+                        border: '1px solid var(--border-color)', borderRadius: '8px', zIndex: 10, listStyle: 'none',
+                        padding: '0.5rem', margin: '0.25rem 0 0 0', maxHeight: '200px', overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                      }}>
+                        {locationSuggestions.find(s => s.index === index)!.results.map((res: any, i: number) => (
+                          <li 
+                            key={i} 
+                            style={{ padding: '0.5rem', cursor: 'pointer', borderBottom: i !== locationSuggestions.find(s => s.index === index)!.results.length - 1 ? '1px solid var(--border-color)' : 'none', fontSize: '0.85rem' }}
+                            onClick={() => {
+                              handleFirmChange(index, 'exactLocation', res.display_name);
+                              setLocationSuggestions(prev => prev.filter(s => s.index !== index));
+                            }}
+                          >
+                            {res.display_name}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
                   <div className="grid-2">
                     <div className="form-group">
@@ -196,15 +266,15 @@ export default function DashboardPage() {
                   <h4 style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}><UserCheck size={16} style={{display:'inline', verticalAlign:'text-bottom'}} /> Supervisor</h4>
                   <div className="form-group" style={{ marginBottom: '1.25rem' }}>
                     <label>Supervisor's Name</label>
-                    <input value={firm.supervisorName || ''} onChange={e => handleFirmChange(index, 'supervisorName', e.target.value)} required placeholder="Jane Doe" />
+                    <input value={firm.supervisorName || ''} onChange={e => handleFirmChange(index, 'supervisorName', e.target.value)} required />
                   </div>
                   <div className="form-group" style={{ marginBottom: '1.25rem' }}>
                     <label>Phone Number</label>
-                    <input type="tel" value={firm.supervisorPhone || ''} onChange={e => handleFirmChange(index, 'supervisorPhone', e.target.value)} required placeholder="0712345678" />
+                    <input type="tel" value={firm.supervisorPhone || ''} onChange={e => handleFirmChange(index, 'supervisorPhone', e.target.value)} required />
                   </div>
                   <div className="form-group">
                     <label>Email Address</label>
-                    <input type="email" value={firm.supervisorEmail || ''} onChange={e => handleFirmChange(index, 'supervisorEmail', e.target.value)} required placeholder="jane@company.com" />
+                    <input type="email" value={firm.supervisorEmail || ''} onChange={e => handleFirmChange(index, 'supervisorEmail', e.target.value)} required />
                   </div>
                 </div>
               </div>

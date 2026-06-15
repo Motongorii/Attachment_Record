@@ -88,7 +88,7 @@ export default function AdminDashboard() {
       const studentDetails = `${student.studentName || 'Not Provided'}\nPhone: ${student.phone || 'N/A'}\nEmail: ${student.email || 'N/A'}`;
 
       const firmsSummary = student.firms && student.firms.length > 0 
-        ? student.firms.map((f: any) => `${f.firmName || 'Unnamed'} - ${f.firmCity || 'No City'}\nFirm Email: ${f.firmEmail || 'N/A'}\nSup. Phone: ${f.supervisorPhone || 'N/A'}`).join('\n\n')
+        ? student.firms.map((f: any) => `${f.firmName || 'Unnamed'} - ${f.firmCounty || 'No County'}\nLocation: ${f.exactLocation || 'N/A'}\nFirm Email: ${f.firmEmail || 'N/A'}\nSup. Phone: ${f.supervisorPhone || 'N/A'}`).join('\n\n')
         : 'No Firm Attached';
 
       const datesSummary = student.firms && student.firms.length > 0 
@@ -417,7 +417,7 @@ export default function AdminDashboard() {
                                     <p style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontWeight: 600 }}>Company Info</p>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                                       <div style={{ display: 'flex', gap: '0.5rem' }}><Mail size={16} color="var(--text-secondary)" /> <span style={{ fontSize: '0.95rem' }}>{firm.firmEmail || 'N/A'}</span></div>
-                                      <div style={{ display: 'flex', gap: '0.5rem' }}><MapPin size={16} color="var(--text-secondary)" /> <span style={{ fontSize: '0.95rem' }}>{firm.firmCity || 'N/A'} {firm.firmLandmark ? '(' + firm.firmLandmark + ')' : ''}</span></div>
+                                      <div style={{ display: 'flex', gap: '0.5rem' }}><MapPin size={16} color="var(--text-secondary)" /> <span style={{ fontSize: '0.95rem' }}>{firm.firmCounty || 'N/A'} {firm.exactLocation ? '— ' + firm.exactLocation : ''}</span></div>
                                       <div style={{ display: 'flex', gap: '0.5rem' }}><Calendar size={16} color="var(--text-secondary)" /> <span style={{ fontSize: '0.95rem' }}>{firm.startDate ? new Date(firm.startDate).toLocaleDateString() : 'N/A'} — {firm.endDate ? new Date(firm.endDate).toLocaleDateString() : 'N/A'}</span></div>
                                     </div>
                                   </div>

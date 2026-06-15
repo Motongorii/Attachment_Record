@@ -40,13 +40,13 @@ export async function PUT(request: Request) {
         create: (firms || []).slice(0, 3).map((firm: any) => ({
           firmName: firm.firmName,
           firmEmail: firm.firmEmail,
-          firmCity: firm.firmCity,
-          firmLandmark: firm.firmLandmark,
+          firmCounty: firm.firmCounty,
+          exactLocation: firm.exactLocation,
           supervisorName: firm.supervisorName,
           supervisorPhone: firm.supervisorPhone,
           supervisorEmail: firm.supervisorEmail,
-          startDate: firm.startDate,
-          endDate: firm.endDate,
+          startDate: firm.startDate ? new Date(firm.startDate) : null,
+          endDate: firm.endDate ? new Date(firm.endDate) : null,
         }))
       }
     },
