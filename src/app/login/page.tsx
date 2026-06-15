@@ -45,19 +45,23 @@ export default function LoginPage() {
     <div className="container" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="card animate-fade-in" style={{ maxWidth: '400px', width: '100%', textAlign: 'center' }}>
         
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
+        <h1 style={{ marginBottom: '1rem', fontSize: 'clamp(1.5rem, 4vw, 1.8rem)', fontWeight: 800, color: 'var(--text-color)', lineHeight: 1.2 }}>
+          Machakos University <br/><span style={{ fontSize: '0.85em', color: 'var(--primary-purple)' }}>Attachment Record</span>
+        </h1>
+        
+        <div style={{ display: 'flex', justifyContent: 'center', margin: '1.25rem 0' }}>
           <img 
             src="/logo.png" 
             alt="Machakos University Logo" 
-            style={{ width: '120px', height: 'auto', objectFit: 'contain' }} 
+            style={{ width: '100px', height: '100px', objectFit: 'contain', filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.1))' }} 
           />
         </div>
-        <p style={{ color: '#e53935', fontSize: '0.85rem', fontStyle: 'italic', fontWeight: 600, marginBottom: '1.5rem', letterSpacing: '0.02em' }}>
-          Excellence in Transformative Scholarship And Community Service
+
+        <p style={{ color: '#e53935', fontSize: 'clamp(0.8rem, 2vw, 0.9rem)', fontStyle: 'italic', fontWeight: 600, marginBottom: '2rem', letterSpacing: '0.03em', lineHeight: 1.4 }}>
+          "Excellence in Transformative Scholarship And Community Service"
         </p>
         
-        <h1 style={{ marginBottom: '0.5rem', fontSize: '1.5rem', fontWeight: 700 }}>Machakos University Attachment Record</h1>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '0.9rem' }}>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem', fontWeight: 500 }}>
           Enter your Admission Number to continue.
         </p>
 
