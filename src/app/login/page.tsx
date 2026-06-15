@@ -45,15 +45,18 @@ export default function LoginPage() {
     <div className="container" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="card animate-fade-in" style={{ maxWidth: '400px', width: '100%', textAlign: 'center' }}>
         
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}>
           <img 
             src="/logo.png" 
-            alt="MKSU Logo" 
+            alt="Machakos University Logo" 
             style={{ width: '120px', height: 'auto', objectFit: 'contain' }} 
           />
         </div>
+        <p style={{ color: '#e53935', fontSize: '0.85rem', fontStyle: 'italic', fontWeight: 600, marginBottom: '1.5rem', letterSpacing: '0.02em' }}>
+          Excellence in Transformative Scholarship And Community Service
+        </p>
         
-        <h1 style={{ marginBottom: '0.5rem', fontSize: '1.5rem', fontWeight: 700 }}>MKSU Attachment Record</h1>
+        <h1 style={{ marginBottom: '0.5rem', fontSize: '1.5rem', fontWeight: 700 }}>Machakos University Attachment Record</h1>
         <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '0.9rem' }}>
           Enter your Admission Number to continue.
         </p>

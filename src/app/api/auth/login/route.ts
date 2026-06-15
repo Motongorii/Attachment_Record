@@ -41,8 +41,8 @@ export async function POST(request: Request) {
     await loginSession(user.admissionNumber, user.role);
 
     return NextResponse.json({ success: true, role: user.role });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Login error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: error?.message || String(error) || 'Internal Server Error' }, { status: 500 });
   }
 }
