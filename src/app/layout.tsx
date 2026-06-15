@@ -15,6 +15,14 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Machakos University Attachment Record",
   description: "Student Attachment Record System for Machakos University",
+  icons: {
+    icon: '/logo.png',
+  },
+  openGraph: {
+    title: "Machakos University Attachment Record",
+    description: "Student Attachment Record System for Machakos University",
+    images: ['/logo.png'],
+  }
 };
 
 export default function RootLayout({
