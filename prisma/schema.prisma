@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String    @id @default(uuid())
+  admissionNumber String    @unique // e.g. J17-0000-0000 or ADMIN-1
+  role            String    @default("student") // "student" or "admin"
+  
+  // Student Details
+  studentName     String?
+  phone           String?
+  email           String?
+  
+  // Course Details
+  course          String?   // Automatically derived from admission
+  yearOfStudy     String?   // "Year 1", "Year 2", etc.
+  
+  // Firm Details
+  firmName        String?
+  firmEmail       String?
+  firmCity        String?
+  firmLandmark    String?
+  
+  // Supervisor Details
+  supervisorName  String?
+  supervisorPhone String?
+  supervisorEmail String?
+  
+  // Period of Attachment
+  startDate       DateTime?
+  endDate         DateTime?
+  
+  // Off Days (stored as JSON string, e.g. '{"Monday": true, "Tuesday": false}')
+  offDays         String?
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
