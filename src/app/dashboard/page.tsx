@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut, Save, User, Building, UserCheck, Calendar, BookOpen, Plus, Trash2, CheckCircle, Eye, EyeOff } from 'lucide-react';
+import { LogOut, Save, User, Building, UserCheck, Calendar, BookOpen, Plus, Trash2, CheckCircle, Eye, EyeOff, Clock } from 'lucide-react';
 
 export default function DashboardPage() {
   const [data, setData] = useState<any>(null);
@@ -10,6 +10,7 @@ export default function DashboardPage() {
   const [showToast, setShowToast] = useState(false);
   const [locationSuggestions, setLocationSuggestions] = useState<{index: number, results: any[]}[]>([]);
   const [fetchingSuggestions, setFetchingSuggestions] = useState(false);
+  const [timeLeft, setTimeLeft] = useState<{days: number, hours: number, minutes: number, seconds: number} | null>(null);
   
   // Password Reset State
   const [currentPassword, setCurrentPassword] = useState('');
@@ -38,6 +39,27 @@ export default function DashboardPage() {
         }
         setData(json);
       });
+
+    const targetDate = new Date('2026-06-19T23:59:59').getTime();
+    
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+      
+      if (distance < 0) {
+        clearInterval(interval);
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      } else {
+        setTimeLeft({
+          days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((distance % (1000 * 60)) / 1000)
+        });
+      }
+    }, 1000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const handleChange = (field: string, value: string) => {
@@ -169,6 +191,51 @@ export default function DashboardPage() {
       <div className="bg-shape-2"></div>
       
       <div className="container animate-fade-in" style={{ paddingTop: '3rem', paddingBottom: '5rem' }}>
+        
+        {timeLeft && (
+          <div className="stagger-1" style={{ 
+            background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(220, 38, 38, 0.03) 100%)', 
+            border: '1px solid rgba(239, 68, 68, 0.2)', 
+            borderRadius: '16px', 
+            padding: '1.5rem', 
+            marginBottom: '2.5rem',
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            textAlign: 'center'
+          }}>
+            <h3 style={{ color: '#DC2626', fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Clock size={20} /> Attachment Details Submission Deadline
+            </h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 500 }}>
+              Friday, June 19th, 2026
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              {[
+                { label: 'Days', value: timeLeft.days },
+                { label: 'Hours', value: timeLeft.hours },
+                { label: 'Minutes', value: timeLeft.minutes },
+                { label: 'Seconds', value: timeLeft.seconds }
+              ].map((time, idx) => (
+                <div key={idx} style={{ 
+                  background: 'white', 
+                  minWidth: '80px', 
+                  padding: '1rem 0.75rem', 
+                  borderRadius: '12px', 
+                  boxShadow: '0 4px 12px rgba(220, 38, 38, 0.08)',
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center'
+                }}>
+                  <span style={{ fontSize: '1.75rem', fontWeight: 800, color: '#DC2626', lineHeight: 1 }}>{time.value.toString().padStart(2, '0')}</span>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#666', letterSpacing: '0.05em', textTransform: 'uppercase', marginTop: '0.5rem' }}>{time.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <header className="page-header stagger-1">
           <div>
             <h1 className="page-title">Student Dashboard</h1>
