@@ -7,6 +7,15 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 export default function AdminDashboard() {
+  const getCourseDisplay = (student: any) => {
+    if (student.course && student.course !== 'Unknown Course') return student.course;
+    const prefix = student.admissionNumber?.substring(0, 3).toUpperCase();
+    if (prefix === 'J17') return 'Computer Science';
+    if (prefix === 'J18') return 'Cloud Computing';
+    if (prefix === 'J77') return 'Information Technology';
+    return 'Unknown Course';
+  };
+
   const [students, setStudents] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [courseFilter, setCourseFilter] = useState('');
@@ -62,15 +71,6 @@ export default function AdminDashboard() {
       doc.setTextColor(100);
       doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 22);
     }
-
-    const getCourseDisplay = (student: any) => {
-      if (student.course && student.course !== 'Unknown Course') return student.course;
-      const prefix = student.admissionNumber?.substring(0, 3).toUpperCase();
-      if (prefix === 'J17') return 'Computer Science';
-      if (prefix === 'J18') return 'Cloud Computing';
-      if (prefix === 'J77') return 'Information Technology';
-      return 'Unknown Course';
-    };
 
     const tableColumn = [
       "No.", 
