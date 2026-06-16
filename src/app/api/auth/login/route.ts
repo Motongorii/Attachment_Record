@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     let course = 'Unknown Course';
     if (prefix === 'J17') course = 'Computer Science';
     else if (prefix === 'J18') course = 'Cloud Computing';
-    else if (prefix === 'J44') course = 'Information Technology';
+    else if (prefix === 'J77') course = 'Information Technology';
 
     // Find or create user
     const user = await prisma.user.upsert({
