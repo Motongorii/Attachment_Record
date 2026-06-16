@@ -27,7 +27,7 @@ export async function PUT(request: Request) {
   const data = await request.json();
 
   // Protect sensitive fields from being updated directly by student
-  const { id, admissionNumber, role, createdAt, updatedAt, course, firms, ...updateData } = data;
+  const { id, admissionNumber, role, createdAt, updatedAt, firms, ...updateData } = data;
 
   const updatedUser = await prisma.user.update({
     where: { admissionNumber: session.admissionNumber },

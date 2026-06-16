@@ -225,6 +225,17 @@ export default function DashboardPage() {
                   <option value="Year 4">Year 4</option>
                 </select>
               </div>
+              <div className="form-group">
+                <label>Course</label>
+                <select value={data.course || ''} onChange={e => handleChange('course', e.target.value)} required>
+                  <option value="">Select Course...</option>
+                  <option value="Computer Science">Computer Science</option>
+                  <option value="Cloud Computing">Cloud Computing</option>
+                  <option value="Information Technology">Information Technology</option>
+                  <option value="Software Engineering">Software Engineering</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
             </div>
           </div>
 

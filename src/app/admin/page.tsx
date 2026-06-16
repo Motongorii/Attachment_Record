@@ -76,13 +76,16 @@ export default function AdminDashboard() {
 
     // Filtered students are already calculated in the render, but we need them here
     const currentFilteredStudents = students.filter(s => {
+      const isComplete = Boolean(s.studentName) && s.firms && s.firms.some((f: any) => Boolean(f.firmName));
+      if (!isComplete) return false;
+
       const matchesSearch = 
         s.admissionNumber?.toLowerCase().includes(search.toLowerCase()) ||
         s.studentName?.toLowerCase().includes(search.toLowerCase()) ||
         (s.firms && s.firms.some((f: any) => f.firmName?.toLowerCase().includes(search.toLowerCase())));
       const matchesCourse = courseFilter === '' || s.course === courseFilter;
       return matchesSearch && matchesCourse;
-    });
+    }).sort((a, b) => getCompletionScore(b) - getCompletionScore(a));
 
     currentFilteredStudents.forEach((student, index) => {
       const studentDetails = `${student.studentName || 'Not Provided'}\nPhone: ${student.phone || 'N/A'}\nEmail: ${student.email || 'N/A'}`;
@@ -202,6 +205,9 @@ export default function AdminDashboard() {
   };
 
   const filteredStudents = students.filter(s => {
+    const isComplete = Boolean(s.studentName) && s.firms && s.firms.some((f: any) => Boolean(f.firmName));
+    if (!isComplete) return false;
+
     const matchesSearch = 
       s.admissionNumber?.toLowerCase().includes(search.toLowerCase()) ||
       s.studentName?.toLowerCase().includes(search.toLowerCase()) ||
