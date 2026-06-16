@@ -12,6 +12,7 @@ export default function DashboardPage() {
   const [fetchingSuggestions, setFetchingSuggestions] = useState(false);
   
   // Password Reset State
+  const [pwdEmail, setPwdEmail] = useState('');
   const [pwdCodeSent, setPwdCodeSent] = useState(false);
   const [pwdCode, setPwdCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -36,6 +37,7 @@ export default function DashboardPage() {
           json.firms = [{}];
         }
         setData(json);
+        if (json.email) setPwdEmail(json.email); // Initialize pwdEmail with saved email
       });
   }, []);
 
@@ -115,11 +117,16 @@ export default function DashboardPage() {
     router.push('/login');
   };
 
-  const handleRequestCode = async () => {
+  const handleRequestCode = async (e: React.FormEvent) => {
+    e.preventDefault();
     setPwdLoading(true);
     setPwdMessage({ text: '', type: '' });
     try {
-      const res = await fetch('/api/auth/request-code', { method: 'POST' });
+      const res = await fetch('/api/auth/request-code', { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: pwdEmail })
+      });
       const data = await res.json();
       if (res.ok) {
         setPwdCodeSent(true);
@@ -384,9 +391,21 @@ export default function DashboardPage() {
           )}
 
           {!pwdCodeSent ? (
-            <button type="button" onClick={handleRequestCode} disabled={pwdLoading || !data.email} className="btn btn-primary" style={{ background: 'var(--primary-purple)' }}>
-              {pwdLoading ? 'Sending...' : 'Send Verification Code via Email'}
-            </button>
+            <form onSubmit={handleRequestCode} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '400px' }}>
+              <div className="form-group">
+                <label>Email Address for Verification Code</label>
+                <input 
+                  type="email" 
+                  value={pwdEmail}
+                  onChange={e => setPwdEmail(e.target.value)}
+                  placeholder="Enter your desired email address"
+                  required 
+                />
+              </div>
+              <button type="submit" disabled={pwdLoading || !pwdEmail} className="btn btn-primary" style={{ background: 'var(--primary-purple)' }}>
+                {pwdLoading ? 'Sending...' : 'Send Verification Code via Email'}
+              </button>
+            </form>
           ) : (
             <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '400px' }}>
               <div className="form-group">
@@ -418,9 +437,6 @@ export default function DashboardPage() {
                 Cancel
               </button>
             </form>
-          )}
-          {!data.email && !pwdCodeSent && (
-            <p style={{ color: 'var(--error-color)', fontSize: '0.85rem', marginTop: '0.5rem' }}>* Please save your email address in the Personal Details section first.</p>
           )}
         </div>
       </div>

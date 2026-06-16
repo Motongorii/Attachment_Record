@@ -5,11 +5,17 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 'dummy_key');
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     const session = await getSession();
     if (!session || session.role !== 'student') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { email } = await request.json();
+
+    if (!email) {
+      return NextResponse.json({ error: 'Email address is required' }, { status: 400 });
     }
 
     const user = await prisma.user.findUnique({
@@ -18,10 +24,6 @@ export async function POST() {
 
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    if (!user.email) {
-      return NextResponse.json({ error: 'No email address found in your profile. Please save your email in the Personal Details section first.' }, { status: 400 });
     }
 
     // Generate 4-digit code
@@ -41,7 +43,7 @@ export async function POST() {
     if (process.env.RESEND_API_KEY) {
       await resend.emails.send({
         from: 'Machakos University <onboarding@resend.dev>', // Free tier Resend sender
-        to: user.email,
+        to: email,
         subject: 'Password Change Verification Code',
         html: `
           <div style="font-family: sans-serif; padding: 20px;">
@@ -55,10 +57,10 @@ export async function POST() {
           </div>
         `
       });
-      console.log(`Email sent via Resend to ${user.email}`);
+      console.log(`Email sent via Resend to ${email}`);
     } else {
       // Fallback for testing when no API key is provided
-      console.log(`\n\n=== PASSWORD RESET CODE ===\nUser: ${user.admissionNumber}\nEmail: ${user.email}\nCode: ${code}\n===========================\n\n`);
+      console.log(`\n\n=== PASSWORD RESET CODE ===\nUser: ${user.admissionNumber}\nEmail: ${email}\nCode: ${code}\n===========================\n\n`);
     }
 
     return NextResponse.json({ success: true, message: 'Code sent successfully' });
