@@ -13,10 +13,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid Admission Number format.' }, { status: 400 });
     }
 
-    if (admissionNumber.toLowerCase() !== password) {
-      return NextResponse.json({ error: 'Invalid Credentials.' }, { status: 401 });
-    }
-
     // Determine course code
     const prefix = admissionNumber.substring(0, 3).toUpperCase();
     let course = 'Unknown Course';
@@ -34,6 +30,20 @@ export async function POST(request: Request) {
         role: 'student', // By default, new registrations are students
       },
     });
+
+    // Verify Password
+    if (user.passwordHash) {
+      const bcrypt = require('bcryptjs');
+      const isMatch = await bcrypt.compare(password, user.passwordHash);
+      if (!isMatch) {
+        return NextResponse.json({ error: 'Invalid admission number or password' }, { status: 401 });
+      }
+    } else {
+      // Legacy fallback: password must match lowercase admission number
+      if (password !== admissionNumber.toLowerCase()) {
+        return NextResponse.json({ error: 'Invalid admission number or password' }, { status: 401 });
+      }
+    }
 
     // Create session cookie
     await loginSession(user.admissionNumber, user.role);

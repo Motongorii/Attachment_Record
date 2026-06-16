@@ -17,6 +17,11 @@ model User {
   phone           String?
   email           String?
   
+  // Authentication
+  passwordHash    String?   // Custom securely hashed password
+  resetCode       String?   // 4-digit OTP for password reset
+  resetCodeExpires DateTime? // Expiration time for the OTP
+
   // Course Details
   course          String?   // Automatically derived from admission
   yearOfStudy     String?   // "Year 1", "Year 2", etc.

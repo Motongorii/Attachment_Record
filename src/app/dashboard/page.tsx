@@ -10,6 +10,14 @@ export default function DashboardPage() {
   const [showToast, setShowToast] = useState(false);
   const [locationSuggestions, setLocationSuggestions] = useState<{index: number, results: any[]}[]>([]);
   const [fetchingSuggestions, setFetchingSuggestions] = useState(false);
+  
+  // Password Reset State
+  const [pwdCodeSent, setPwdCodeSent] = useState(false);
+  const [pwdCode, setPwdCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [pwdLoading, setPwdLoading] = useState(false);
+  const [pwdMessage, setPwdMessage] = useState({ text: '', type: '' });
+  
   const router = useRouter();
 
   const kenyaCounties = [
@@ -105,6 +113,49 @@ export default function DashboardPage() {
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
     router.push('/login');
+  };
+
+  const handleRequestCode = async () => {
+    setPwdLoading(true);
+    setPwdMessage({ text: '', type: '' });
+    try {
+      const res = await fetch('/api/auth/request-code', { method: 'POST' });
+      const data = await res.json();
+      if (res.ok) {
+        setPwdCodeSent(true);
+        setPwdMessage({ text: 'Verification code sent to your email.', type: 'success' });
+      } else {
+        setPwdMessage({ text: data.error || 'Failed to send code.', type: 'error' });
+      }
+    } catch (e) {
+      setPwdMessage({ text: 'An error occurred.', type: 'error' });
+    }
+    setPwdLoading(false);
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPwdLoading(true);
+    setPwdMessage({ text: '', type: '' });
+    try {
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: pwdCode, newPassword })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setPwdMessage({ text: 'Password changed successfully!', type: 'success' });
+        setPwdCodeSent(false);
+        setPwdCode('');
+        setNewPassword('');
+      } else {
+        setPwdMessage({ text: data.error || 'Failed to change password.', type: 'error' });
+      }
+    } catch (e) {
+      setPwdMessage({ text: 'An error occurred.', type: 'error' });
+    }
+    setPwdLoading(false);
   };
 
   if (!data) return (
@@ -318,6 +369,60 @@ export default function DashboardPage() {
             </button>
           </div>
         </form>
+
+        {/* Security / Password Change */}
+        <div className="glass-card stagger-5" style={{ marginTop: '2rem', border: '1px solid var(--primary-purple-light)' }}>
+          <h3 className="section-title" style={{ color: 'var(--primary-purple)' }}>
+            <div className="icon-wrapper" style={{ background: 'var(--primary-purple)', color: 'white' }}>🛡️</div> Security Settings
+          </h3>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Change your account password securely. We will send a 4-digit verification code to the email address saved in your Personal Details.</p>
+          
+          {pwdMessage.text && (
+            <div style={{ padding: '1rem', borderRadius: '8px', marginBottom: '1rem', background: pwdMessage.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: pwdMessage.type === 'success' ? 'var(--success-color)' : 'var(--error-color)', fontWeight: 500 }}>
+              {pwdMessage.text}
+            </div>
+          )}
+
+          {!pwdCodeSent ? (
+            <button type="button" onClick={handleRequestCode} disabled={pwdLoading || !data.email} className="btn btn-primary" style={{ background: 'var(--primary-purple)' }}>
+              {pwdLoading ? 'Sending...' : 'Send Verification Code via Email'}
+            </button>
+          ) : (
+            <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '400px' }}>
+              <div className="form-group">
+                <label>4-Digit Verification Code</label>
+                <input 
+                  type="text" 
+                  maxLength={4}
+                  value={pwdCode}
+                  onChange={e => setPwdCode(e.target.value.replace(/\D/g, ''))}
+                  placeholder="e.g. 1234"
+                  required 
+                  style={{ fontSize: '1.2rem', letterSpacing: '4px', textAlign: 'center' }}
+                />
+              </div>
+              <div className="form-group">
+                <label>New Password (min 6 chars)</label>
+                <input 
+                  type="password" 
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  required 
+                  minLength={6}
+                />
+              </div>
+              <button type="submit" disabled={pwdLoading || pwdCode.length < 4 || newPassword.length < 6} className="btn btn-primary">
+                {pwdLoading ? 'Updating...' : 'Update Password'}
+              </button>
+              <button type="button" onClick={() => setPwdCodeSent(false)} className="btn btn-secondary" style={{ marginTop: '0.5rem' }}>
+                Cancel
+              </button>
+            </form>
+          )}
+          {!data.email && !pwdCodeSent && (
+            <p style={{ color: 'var(--error-color)', fontSize: '0.85rem', marginTop: '0.5rem' }}>* Please save your email address in the Personal Details section first.</p>
+          )}
+        </div>
       </div>
 
       {/* Premium Toast Notification */}
