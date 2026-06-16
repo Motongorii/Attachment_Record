@@ -10,6 +10,7 @@ export default function AdminDashboard() {
   const [students, setStudents] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [courseFilter, setCourseFilter] = useState('');
+  const [assessmentFilter, setAssessmentFilter] = useState('ALL');
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const router = useRouter();
 
@@ -225,7 +226,12 @@ export default function AdminDashboard() {
       
     const matchesCourse = courseFilter === '' || s.course === courseFilter;
     
-    return matchesSearch && matchesCourse;
+    const matchesAssessment = 
+      assessmentFilter === 'ALL' ||
+      (assessmentFilter === 'ASSESSED' && s.firms && s.firms.length > 0 && s.firms.every((f: any) => f.assessmentDone)) ||
+      (assessmentFilter === 'NOT_ASSESSED' && s.firms && s.firms.some((f: any) => !f.assessmentDone));
+    
+    return matchesSearch && matchesCourse && matchesAssessment;
   }).sort((a, b) => getCompletionScore(b) - getCompletionScore(a));
 
   return (
@@ -258,12 +264,22 @@ export default function AdminDashboard() {
             <select 
               value={courseFilter} 
               onChange={e => setCourseFilter(e.target.value)}
-              style={{ width: 'auto', minWidth: '220px', cursor: 'pointer', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', fontWeight: 500 }}
+              style={{ width: 'auto', minWidth: '200px', cursor: 'pointer', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', fontWeight: 500 }}
             >
               <option value="">All Courses</option>
               <option value="Computer Science">Computer Science</option>
               <option value="Cloud Computing">Cloud Computing</option>
               <option value="Information Technology">Information Technology</option>
+            </select>
+
+            <select 
+              value={assessmentFilter} 
+              onChange={e => setAssessmentFilter(e.target.value)}
+              style={{ width: 'auto', minWidth: '180px', cursor: 'pointer', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', fontWeight: 500 }}
+            >
+              <option value="ALL">All Statuses</option>
+              <option value="ASSESSED">Fully Assessed</option>
+              <option value="NOT_ASSESSED">Pending Assessment</option>
             </select>
           </div>
 
@@ -359,12 +375,36 @@ export default function AdminDashboard() {
                   </div>
 
                   {(isExpanded) && (
-                    <div className="expanded-content" style={{ padding: '2rem', borderTop: '1px solid var(--border-color)', background: 'var(--bg-color)' }}>
-                      <div style={{ marginBottom: '2.5rem' }}>
-                        <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-purple)', fontSize: '1.1rem', marginBottom: '1rem', fontWeight: 600 }}>
-                          <UserCheck size={18} /> Personal Details
-                        </h4>
-                        <div className="grid-4" style={{ background: 'var(--surface-color)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.05)' }}>
+                    <div className="expanded-content" style={{ padding: '1.5rem', borderTop: '1px solid var(--border-color)', background: 'var(--bg-color)' }}>
+                      <div style={{ marginBottom: '2rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
+                          <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-purple)', fontSize: '1.1rem', margin: 0, fontWeight: 600 }}>
+                            <UserCheck size={18} /> Personal Details
+                          </h4>
+                          <button 
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              if (confirm("Are you sure you want to reset this student's password back to their Admission Number?")) {
+                                try {
+                                  const res = await fetch('/api/admin', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ action: 'resetPassword', studentId: student.id })
+                                  });
+                                  if (res.ok) alert('Password reset successfully!');
+                                  else alert('Failed to reset password.');
+                                } catch (err) {
+                                  alert('Error resetting password.');
+                                }
+                              }
+                            }}
+                            className="btn btn-secondary hide-on-print" 
+                            style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem', color: 'var(--error-color)', borderColor: 'var(--error-color)', background: 'transparent' }}
+                          >
+                            Reset Password
+                          </button>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', background: 'var(--surface-color)', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.05)' }}>
                           <div className="info-item">
                             <span className="info-label"><Mail size={14} style={{display:'inline', marginRight:'4px'}} /> Email</span>
                             <span className="info-value" style={{ fontSize: '0.95rem' }}>{student.email || 'N/A'}</span>
@@ -406,9 +446,10 @@ export default function AdminDashboard() {
                                   <label className="hide-on-print" style={{ 
                                     display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', 
                                     padding: '0.5rem 1rem', borderRadius: '30px', 
-                                    background: firm.assessmentDone ? 'rgba(16, 185, 129, 0.1)' : 'rgba(0,0,0,0.04)',
-                                    color: firm.assessmentDone ? 'var(--success-color)' : 'var(--text-secondary)',
-                                    fontWeight: 600, fontSize: '0.85rem', transition: 'all 0.2s'
+                                    background: firm.assessmentDone ? 'var(--success-color)' : 'var(--primary-blue)',
+                                    color: 'white',
+                                    fontWeight: 600, fontSize: '0.85rem', transition: 'all 0.2s',
+                                    boxShadow: firm.assessmentDone ? '0 4px 10px rgba(16, 185, 129, 0.3)' : '0 4px 10px rgba(42, 96, 200, 0.3)'
                                   }}>
                                     <input 
                                       type="checkbox" 
@@ -416,25 +457,25 @@ export default function AdminDashboard() {
                                       onChange={() => handleAssessmentToggle(firm.id, firm.assessmentDone)}
                                       style={{ display: 'none' }}
                                     />
-                                    {firm.assessmentDone ? <CheckCircle2 size={18} /> : <div style={{ width: '16px', height: '16px', border: '2px solid currentColor', borderRadius: '50%' }}></div>}
-                                    {firm.assessmentDone ? 'Assessment Completed' : 'Mark as Assessed'}
+                                    {firm.assessmentDone ? <CheckCircle2 size={18} color="white" /> : <div style={{ width: '16px', height: '16px', border: '2px solid white', borderRadius: '50%' }}></div>}
+                                    {firm.assessmentDone ? 'Assessed' : 'Mark Assessed'}
                                   </label>
                                 </div>
-                                <div style={{ padding: '1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-                                  <div>
-                                    <p style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontWeight: 600 }}>Company Info</p>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                                      <div style={{ display: 'flex', gap: '0.5rem' }}><Mail size={16} color="var(--text-secondary)" /> <span style={{ fontSize: '0.95rem' }}>{firm.firmEmail || 'N/A'}</span></div>
-                                      <div style={{ display: 'flex', gap: '0.5rem' }}><MapPin size={16} color="var(--text-secondary)" /> <span style={{ fontSize: '0.95rem' }}>{firm.firmCounty || 'N/A'} {firm.exactLocation ? '— ' + firm.exactLocation : ''}</span></div>
-                                      <div style={{ display: 'flex', gap: '0.5rem' }}><Calendar size={16} color="var(--text-secondary)" /> <span style={{ fontSize: '0.95rem' }}>{firm.startDate ? new Date(firm.startDate).toLocaleDateString() : 'N/A'} — {firm.endDate ? new Date(firm.endDate).toLocaleDateString() : 'N/A'}</span></div>
+                                <div style={{ padding: '1.25rem 1.5rem', display: 'flex', flexWrap: 'wrap', gap: '1.5rem' }}>
+                                  <div style={{ flex: '1 1 250px' }}>
+                                    <p style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontWeight: 600 }}>Company Info</p>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}><Mail size={14} color="var(--text-secondary)" /> <span style={{ fontSize: '0.9rem' }}>{firm.firmEmail || 'N/A'}</span></div>
+                                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}><MapPin size={14} color="var(--text-secondary)" style={{ marginTop: '2px' }} /> <span style={{ fontSize: '0.9rem', lineHeight: 1.4 }}>{firm.firmCounty || 'N/A'} {firm.exactLocation ? '— ' + firm.exactLocation : ''}</span></div>
+                                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}><Calendar size={14} color="var(--text-secondary)" /> <span style={{ fontSize: '0.9rem' }}>{firm.startDate ? new Date(firm.startDate).toLocaleDateString() : 'N/A'} — {firm.endDate ? new Date(firm.endDate).toLocaleDateString() : 'N/A'}</span></div>
                                     </div>
                                   </div>
-                                  <div>
-                                    <p style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontWeight: 600 }}>Supervisor Info</p>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                                      <div style={{ display: 'flex', gap: '0.5rem' }}><UserCheck size={16} color="var(--text-secondary)" /> <span style={{ fontSize: '0.95rem', fontWeight: 500 }}>{firm.supervisorName || 'N/A'}</span></div>
-                                      <div style={{ display: 'flex', gap: '0.5rem' }}><Phone size={16} color="var(--text-secondary)" /> <span style={{ fontSize: '0.95rem' }}>{firm.supervisorPhone || 'N/A'}</span></div>
-                                      <div style={{ display: 'flex', gap: '0.5rem' }}><Mail size={16} color="var(--text-secondary)" /> <span style={{ fontSize: '0.95rem' }}>{firm.supervisorEmail || 'N/A'}</span></div>
+                                  <div style={{ flex: '1 1 250px' }}>
+                                    <p style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontWeight: 600 }}>Supervisor Info</p>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}><UserCheck size={14} color="var(--text-secondary)" /> <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>{firm.supervisorName || 'N/A'}</span></div>
+                                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}><Phone size={14} color="var(--text-secondary)" /> <span style={{ fontSize: '0.9rem' }}>{firm.supervisorPhone || 'N/A'}</span></div>
+                                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}><Mail size={14} color="var(--text-secondary)" /> <span style={{ fontSize: '0.9rem' }}>{firm.supervisorEmail || 'N/A'}</span></div>
                                     </div>
                                   </div>
                                 </div>
