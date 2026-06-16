@@ -132,11 +132,14 @@ export default function DashboardPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        setPwdMessage({ text: 'Password changed successfully!', type: 'success' });
+        setPwdMessage({ text: 'Password changed successfully! Logging you out...', type: 'success' });
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
         setShowPassword(false);
+        setTimeout(() => {
+          handleLogout();
+        }, 2000);
       } else {
         setPwdMessage({ text: data.error || 'Failed to change password.', type: 'error' });
       }

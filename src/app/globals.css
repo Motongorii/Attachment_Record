@@ -376,39 +376,67 @@ input[type="checkbox"]:checked::before {
 /* Responsive Media Queries */
 @media (max-width: 768px) {
   .container {
-    padding: 0 1rem;
+    padding: 0 0.75rem;
   }
   
   .page-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1.25rem;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
   }
 
   .page-header .btn {
     width: 100%;
+    justify-content: center;
   }
 
-  .glass-card {
-    padding: 1.25rem;
+  .glass-card, .glass-panel {
+    padding: 1rem !important;
+    border-radius: 12px;
   }
 
   .page-title {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
   }
   
+  .page-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+
   .card {
-    padding: 1.5rem 1rem !important;
+    padding: 1.25rem 1rem !important;
+  }
+
+  .grid-2, .grid-3, .grid-4 {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 
 @media (max-width: 480px) {
   .btn {
-    padding: 0.6rem 1.25rem;
-    font-size: 0.9rem;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.95rem !important;
+    min-width: unset !important;
   }
   
   input, select, textarea {
     font-size: 16px; /* Prevents iOS Safari zoom */
+    padding: 0.6rem 0.75rem;
+  }
+
+  .info-value {
+    font-size: 1rem;
   }
 }
