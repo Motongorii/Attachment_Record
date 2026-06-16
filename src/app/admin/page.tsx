@@ -97,16 +97,14 @@ export default function AdminDashboard() {
     // Filtered students are already calculated in the render, but we need them here
     const currentFilteredStudents = students.filter(s => {
       const hasValidName = s.studentName && s.studentName.trim().length > 0 && s.studentName !== 'Unnamed Student';
-      const validFirms = s.firms ? s.firms.filter((f: any) => f.firmName && f.firmName.trim().length > 0) : [];
-      const isComplete = hasValidName && validFirms.length > 0;
-      if (!isComplete) return false;
+      if (!hasValidName) return false;
 
       const matchesSearch = 
         s.admissionNumber?.toLowerCase().includes(search.toLowerCase()) ||
         s.studentName?.toLowerCase().includes(search.toLowerCase()) ||
         (s.firms && s.firms.some((f: any) => f.firmName?.toLowerCase().includes(search.toLowerCase())));
         
-      const matchesCourse = courseFilter === '' || s.course === courseFilter;
+      const matchesCourse = courseFilter === '' || getCourseDisplay(s) === courseFilter;
       const matchesCounty = countyFilter === '' || (s.firms && s.firms.some((f: any) => f.firmCounty === countyFilter));
       
       const matchesAssessment = 
@@ -249,16 +247,14 @@ export default function AdminDashboard() {
 
   const filteredStudents = students.filter(s => {
     const hasValidName = s.studentName && s.studentName.trim().length > 0 && s.studentName !== 'Unnamed Student';
-    const validFirms = s.firms ? s.firms.filter((f: any) => f.firmName && f.firmName.trim().length > 0) : [];
-    const isComplete = hasValidName && validFirms.length > 0;
-    if (!isComplete) return false;
+    if (!hasValidName) return false;
 
     const matchesSearch = 
       s.admissionNumber?.toLowerCase().includes(search.toLowerCase()) ||
       s.studentName?.toLowerCase().includes(search.toLowerCase()) ||
       (s.firms && s.firms.some((f: any) => f.firmName?.toLowerCase().includes(search.toLowerCase())));
       
-    const matchesCourse = courseFilter === '' || s.course === courseFilter;
+    const matchesCourse = courseFilter === '' || getCourseDisplay(s) === courseFilter;
     const matchesCounty = countyFilter === '' || (s.firms && s.firms.some((f: any) => f.firmCounty === countyFilter));
     
     const matchesAssessment = 
