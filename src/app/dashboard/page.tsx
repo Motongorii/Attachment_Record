@@ -351,9 +351,9 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="stagger-5" style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem', paddingBottom: '2rem' }}>
-            <button type="submit" className="btn btn-primary" disabled={saving}>
-              <Save size={18} /> {saving ? 'Saving...' : 'Save All Details'}
+          <div className="stagger-5" style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem', paddingBottom: '2rem' }}>
+            <button type="submit" className="btn btn-primary" disabled={saving} style={{ padding: '1rem 3rem', fontSize: '1.15rem', fontWeight: 700, minWidth: '250px', justifyContent: 'center' }}>
+              <Save size={22} /> {saving ? 'Submitting...' : 'Submit Details'}
             </button>
           </div>
         </form>
