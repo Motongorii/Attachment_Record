@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut, Printer, Download, Search, CheckCircle2, ChevronDown, ChevronUp, Mail, Phone, MapPin, Building, UserCheck, Calendar } from 'lucide-react';
+import { LogOut, Printer, Download, Search, CheckCircle2, ChevronDown, ChevronUp, Mail, Phone, MapPin, Building, UserCheck, Calendar, Users } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
@@ -232,14 +232,21 @@ export default function AdminDashboard() {
       (assessmentFilter === 'NOT_ASSESSED' && s.firms && s.firms.some((f: any) => !f.assessmentDone));
     
     return matchesSearch && matchesCourse && matchesAssessment;
-  }).sort((a, b) => getCompletionScore(b) - getCompletionScore(a));
+  }).sort((a, b) => {
+    const numA = a.admissionNumber || '';
+    const numB = b.admissionNumber || '';
+    return numA.localeCompare(numB, undefined, { numeric: true, sensitivity: 'base' });
+  });
 
   return (
     <div className="container" style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
       <header className="hide-on-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
         <div>
           <h1 className="page-title">Admin Dashboard</h1>
-          <p className="page-subtitle">View and manage comprehensive student attachment records</p>
+          <p className="page-subtitle" style={{ marginBottom: '0.75rem' }}>View and manage comprehensive student attachment records</p>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(90, 61, 122, 0.1)', color: 'var(--primary-purple)', padding: '0.4rem 1rem', borderRadius: '20px', fontSize: '0.9rem', fontWeight: 600 }}>
+            <Users size={16} /> {filteredStudents.length} Student{filteredStudents.length !== 1 && 's'} Found
+          </div>
         </div>
         <button onClick={handleLogout} className="btn btn-secondary">
           <LogOut size={18} /> Logout
