@@ -323,8 +323,15 @@ export default function DashboardPage() {
                 <span className="info-value">{data.admissionNumber}</span>
               </div>
               <div className="info-item">
-                <span className="info-label">Course</span>
-                <span className="info-value">{data.course || 'Not specified'}</span>
+                <span className="info-label">Course (Update if incorrect)</span>
+                <input 
+                  type="text"
+                  value={data.course === 'Unknown Course' ? '' : (data.course || '')} 
+                  onChange={e => handleChange('course', e.target.value)}
+                  placeholder="e.g. Information Technology"
+                  style={{ width: '100%', padding: '0.5rem', border: '1px solid rgba(90, 61, 122, 0.2)', borderRadius: '8px', outline: 'none', background: 'var(--bg-color)', color: 'var(--text-color)', fontSize: '0.95rem', fontWeight: 600, marginTop: '0.25rem' }}
+                  required
+                />
               </div>
             </div>
           </div>

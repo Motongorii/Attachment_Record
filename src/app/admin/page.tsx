@@ -317,9 +317,12 @@ export default function AdminDashboard() {
               style={{ width: 'auto', minWidth: '180px', cursor: 'pointer', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', fontWeight: 500 }}
             >
               <option value="">All Courses</option>
-              <option value="Computer Science">Computer Science</option>
-              <option value="Cloud Computing">Cloud Computing</option>
-              <option value="Information Technology">Information Technology</option>
+              {Array.from(new Set(
+                students
+                  .filter(s => s.studentName && s.studentName !== 'Unnamed Student')
+                  .map(s => getCourseDisplay(s))
+                  .filter(Boolean)
+              )).sort((a: any, b: any) => a.localeCompare(b)).map(c => <option key={c as string} value={c as string}>{c as string}</option>)}
             </select>
 
             <select 
