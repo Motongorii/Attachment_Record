@@ -382,6 +382,30 @@ export default function AdminDashboard() {
                             <span className="info-value" style={{ fontSize: '0.95rem', color: offDaysList ? 'inherit' : 'var(--text-secondary)' }}>{offDaysList || 'None'}</span>
                           </div>
                         </div>
+                        <div className="hide-on-print" style={{ marginTop: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+                          <button 
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              if (confirm('Are you sure you want to reset this student\\'s password back to their Admission Number?')) {
+                                try {
+                                  const res = await fetch('/api/admin', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ action: 'resetPassword', studentId: student.id })
+                                  });
+                                  if (res.ok) alert('Password reset successfully!');
+                                  else alert('Failed to reset password.');
+                                } catch (err) {
+                                  alert('Error resetting password.');
+                                }
+                              }
+                            }}
+                            className="btn btn-secondary" 
+                            style={{ fontSize: '0.85rem', color: 'var(--error-color)', borderColor: 'var(--error-color)', background: 'transparent' }}
+                          >
+                            Reset Student Password
+                          </button>
+                        </div>
                       </div>
 
                       {/* Firms & Assessment */}

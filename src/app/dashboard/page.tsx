@@ -12,9 +12,7 @@ export default function DashboardPage() {
   const [fetchingSuggestions, setFetchingSuggestions] = useState(false);
   
   // Password Reset State
-  const [pwdEmail, setPwdEmail] = useState('');
-  const [pwdCodeSent, setPwdCodeSent] = useState(false);
-  const [pwdCode, setPwdCode] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -39,7 +37,6 @@ export default function DashboardPage() {
           json.firms = [{}];
         }
         setData(json);
-        if (json.email) setPwdEmail(json.email); // Initialize pwdEmail with saved email
       });
   }, []);
 
@@ -119,29 +116,6 @@ export default function DashboardPage() {
     router.push('/login');
   };
 
-  const handleRequestCode = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setPwdLoading(true);
-    setPwdMessage({ text: '', type: '' });
-    try {
-      const res = await fetch('/api/auth/request-code', { 
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: pwdEmail })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setPwdCodeSent(true);
-        setPwdMessage({ text: 'Verification code sent to your email.', type: 'success' });
-      } else {
-        setPwdMessage({ text: data.error || 'Failed to send code.', type: 'error' });
-      }
-    } catch (e) {
-      setPwdMessage({ text: 'An error occurred.', type: 'error' });
-    }
-    setPwdLoading(false);
-  };
-
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
@@ -154,13 +128,12 @@ export default function DashboardPage() {
       const res = await fetch('/api/auth/change-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: pwdCode, newPassword })
+        body: JSON.stringify({ currentPassword, newPassword })
       });
       const data = await res.json();
       if (res.ok) {
         setPwdMessage({ text: 'Password changed successfully!', type: 'success' });
-        setPwdCodeSent(false);
-        setPwdCode('');
+        setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
         setShowPassword(false);
@@ -390,7 +363,7 @@ export default function DashboardPage() {
           <h3 className="section-title" style={{ color: 'var(--primary-purple)' }}>
             <div className="icon-wrapper" style={{ background: 'var(--primary-purple)', color: 'white' }}>🛡️</div> Security Settings
           </h3>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Change your account password securely. We will send a 4-digit verification code to the email address saved in your Personal Details.</p>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Change your account password securely. If you ever forget your password and get locked out, an Administrator can reset it for you.</p>
           
           {pwdMessage.text && (
             <div style={{ padding: '1rem', borderRadius: '8px', marginBottom: '1rem', background: pwdMessage.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: pwdMessage.type === 'success' ? 'var(--success-color)' : 'var(--error-color)', fontWeight: 500 }}>
@@ -398,81 +371,56 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {!pwdCodeSent ? (
-            <form onSubmit={handleRequestCode} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '400px' }}>
-              <div className="form-group">
-                <label>Email Address for Verification Code</label>
+          <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '400px' }}>
+            <div className="form-group" style={{ position: 'relative' }}>
+              <label>Current Password</label>
+              <div style={{ display: 'flex', position: 'relative' }}>
                 <input 
-                  type="email" 
-                  value={pwdEmail}
-                  onChange={e => setPwdEmail(e.target.value)}
-                  placeholder="Enter your desired email address"
+                  type={showPassword ? "text" : "password"}
+                  value={currentPassword}
+                  onChange={e => setCurrentPassword(e.target.value)}
                   required 
+                  style={{ paddingRight: '40px' }}
+                />
+                <button 
+                  type="button" 
+                  onClick={() => setShowPassword(!showPassword)} 
+                  style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-secondary)' }}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+            <div className="form-group" style={{ position: 'relative' }}>
+              <label>New Password (min 6 chars)</label>
+              <div style={{ display: 'flex', position: 'relative' }}>
+                <input 
+                  type={showPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  required 
+                  minLength={6}
+                  style={{ paddingRight: '40px' }}
                 />
               </div>
-              <button type="submit" disabled={pwdLoading || !pwdEmail} className="btn btn-primary" style={{ background: 'var(--primary-purple)' }}>
-                {pwdLoading ? 'Sending...' : 'Send Verification Code via Email'}
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '400px' }}>
-              <div className="form-group">
-                <label>4-Digit Verification Code</label>
+            </div>
+            <div className="form-group" style={{ position: 'relative' }}>
+              <label>Confirm New Password</label>
+              <div style={{ display: 'flex', position: 'relative' }}>
                 <input 
-                  type="text" 
-                  maxLength={4}
-                  value={pwdCode}
-                  onChange={e => setPwdCode(e.target.value.replace(/\D/g, ''))}
-                  placeholder="e.g. 1234"
+                  type={showPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
                   required 
-                  style={{ fontSize: '1.2rem', letterSpacing: '4px', textAlign: 'center' }}
+                  minLength={6}
+                  style={{ paddingRight: '40px' }}
                 />
               </div>
-              <div className="form-group" style={{ position: 'relative' }}>
-                <label>New Password (min 6 chars)</label>
-                <div style={{ display: 'flex', position: 'relative' }}>
-                  <input 
-                    type={showPassword ? "text" : "password"}
-                    value={newPassword}
-                    onChange={e => setNewPassword(e.target.value)}
-                    required 
-                    minLength={6}
-                    style={{ paddingRight: '40px' }}
-                  />
-                  <button 
-                    type="button" 
-                    onClick={() => setShowPassword(!showPassword)} 
-                    style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-secondary)' }}
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-              </div>
-              <div className="form-group" style={{ position: 'relative' }}>
-                <label>Confirm New Password</label>
-                <div style={{ display: 'flex', position: 'relative' }}>
-                  <input 
-                    type={showPassword ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={e => setConfirmPassword(e.target.value)}
-                    required 
-                    minLength={6}
-                    style={{ paddingRight: '40px' }}
-                  />
-                </div>
-              </div>
-              <button type="submit" disabled={pwdLoading || pwdCode.length < 4 || newPassword.length < 6 || confirmPassword.length < 6} className="btn btn-primary">
-                {pwdLoading ? 'Updating...' : 'Update Password'}
-              </button>
-              <button type="button" onClick={() => {
-                setPwdCodeSent(false);
-                setNewPassword('');
-                setConfirmPassword('');
-              }} className="btn btn-secondary" style={{ marginTop: '0.5rem' }}>
-                Cancel
-              </button>
-            </form>
-          )}
+            </div>
+            <button type="submit" disabled={pwdLoading || !currentPassword || newPassword.length < 6 || confirmPassword.length < 6} className="btn btn-primary">
+              {pwdLoading ? 'Updating...' : 'Update Password'}
+            </button>
+          </form>
         </div>
       </div>
 

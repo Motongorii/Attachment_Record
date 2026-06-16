@@ -10,14 +10,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { code, newPassword } = await request.json();
+    const { currentPassword, newPassword } = await request.json();
 
-    if (!code || !newPassword) {
-      return NextResponse.json({ error: 'Code and new password are required' }, { status: 400 });
+    if (!currentPassword || !newPassword) {
+      return NextResponse.json({ error: 'Current password and new password are required' }, { status: 400 });
     }
 
     if (newPassword.length < 6) {
-      return NextResponse.json({ error: 'Password must be at least 6 characters long' }, { status: 400 });
+      return NextResponse.json({ error: 'New password must be at least 6 characters long' }, { status: 400 });
     }
 
     const user = await prisma.user.findUnique({
@@ -28,22 +28,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    if (!user.resetCode || !user.resetCodeExpires) {
-      return NextResponse.json({ error: 'No password reset requested' }, { status: 400 });
-    }
-
-    if (user.resetCode !== code) {
-      return NextResponse.json({ error: 'Invalid verification code' }, { status: 400 });
-    }
-
-    if (user.resetCodeExpires < new Date()) {
-      return NextResponse.json({ error: 'Verification code has expired' }, { status: 400 });
+    // Verify current password
+    if (user.passwordHash) {
+      const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
+      if (!isMatch) {
+        return NextResponse.json({ error: 'Incorrect current password' }, { status: 400 });
+      }
+    } else {
+      // If no hash exists, the current password must be the default (lowercase admission number)
+      if (currentPassword !== user.admissionNumber.toLowerCase()) {
+        return NextResponse.json({ error: 'Incorrect current password' }, { status: 400 });
+      }
     }
 
     // Securely hash the new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    // Save to DB and clear reset codes
+    // Save to DB and clear any old reset codes just in case
     await prisma.user.update({
       where: { admissionNumber: session.admissionNumber },
       data: {
