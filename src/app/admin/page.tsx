@@ -181,6 +181,26 @@ export default function AdminDashboard() {
     setExpandedRowId(prev => prev === id ? null : id);
   };
 
+  const getCompletionScore = (s: any) => {
+    let score = 0;
+    if (s.studentName) score++;
+    if (s.email) score++;
+    if (s.phone) score++;
+    if (s.yearOfStudy) score++;
+    
+    if (s.firms && s.firms.length > 0) {
+      score += 2;
+      s.firms.forEach((f: any) => {
+        if (f.firmName) score++;
+        if (f.firmCounty) score++;
+        if (f.exactLocation) score++;
+        if (f.supervisorName) score++;
+        if (f.startDate) score++;
+      });
+    }
+    return score;
+  };
+
   const filteredStudents = students.filter(s => {
     const matchesSearch = 
       s.admissionNumber?.toLowerCase().includes(search.toLowerCase()) ||
@@ -190,7 +210,7 @@ export default function AdminDashboard() {
     const matchesCourse = courseFilter === '' || s.course === courseFilter;
     
     return matchesSearch && matchesCourse;
-  });
+  }).sort((a, b) => getCompletionScore(b) - getCompletionScore(a));
 
   return (
     <div className="container" style={{ paddingTop: '2rem', paddingBottom: '4rem' }}>
