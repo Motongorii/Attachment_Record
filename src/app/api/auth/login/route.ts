@@ -6,8 +6,8 @@ export async function POST(request: Request) {
   try {
     const { admissionNumber, password } = await request.json();
 
-    // Basic format validation: JXX-XXXX-XXXX
-    const formatRegex = /^[A-Z0-9]{3}-\d{4}-\d{4}$/i;
+    // Basic format validation: JXX-XXXX-XXXX or JXX-XXXXX-XXXX
+    const formatRegex = /^[A-Z0-9]{3}-\d{4,5}-\d{4}$/i;
     
     if (!formatRegex.test(admissionNumber)) {
       return NextResponse.json({ error: 'Invalid Admission Number format.' }, { status: 400 });

@@ -76,7 +76,7 @@ export default function LoginPage() {
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500, fontSize: '0.9rem' }}>Admission Number</label>
             <input 
               type="text" 
-              placeholder="e.g. J17-0000-0000" 
+              placeholder="e.g. J17-0000-0000 or J17-00000-0000" 
               value={admissionNumber}
               onChange={(e) => setAdmissionNumber(e.target.value)}
               required 
