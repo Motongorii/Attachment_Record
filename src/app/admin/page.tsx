@@ -6,6 +6,14 @@ import { LogOut, Printer, Download, Search, CheckCircle2, ChevronDown, ChevronUp
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
+const kenyaCounties = [
+  "Baringo", "Bomet", "Bungoma", "Busia", "Elgeyo Marakwet", "Embu", "Garissa", "Homa Bay", "Isiolo", "Kajiado",
+  "Kakamega", "Kericho", "Kiambu", "Kilifi", "Kirinyaga", "Kisii", "Kisumu", "Kitui", "Kwale", "Laikipia",
+  "Lamu", "Machakos", "Makueni", "Mandera", "Marsabit", "Meru", "Migori", "Mombasa", "Murang'a", "Nairobi",
+  "Nakuru", "Nandi", "Narok", "Nyamira", "Nyandarua", "Nyeri", "Samburu", "Siaya", "Taita Taveta", "Tana River",
+  "Tharaka Nithi", "Trans Nzoia", "Turkana", "Uasin Gishu", "Vihiga", "Wajir", "West Pokot"
+];
+
 export default function AdminDashboard() {
   const getCourseDisplay = (student: any) => {
     if (student.course && student.course !== 'Unknown Course') return student.course;
@@ -19,7 +27,9 @@ export default function AdminDashboard() {
   const [students, setStudents] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [courseFilter, setCourseFilter] = useState('');
+  const [countyFilter, setCountyFilter] = useState('');
   const [assessmentFilter, setAssessmentFilter] = useState('ALL');
+  const [sortMode, setSortMode] = useState('ADM');
   const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const router = useRouter();
 
@@ -97,14 +107,27 @@ export default function AdminDashboard() {
         (s.firms && s.firms.some((f: any) => f.firmName?.toLowerCase().includes(search.toLowerCase())));
         
       const matchesCourse = courseFilter === '' || s.course === courseFilter;
+      const matchesCounty = countyFilter === '' || (s.firms && s.firms.some((f: any) => f.firmCounty === countyFilter));
       
       const matchesAssessment = 
         assessmentFilter === 'ALL' ||
         (assessmentFilter === 'ASSESSED' && s.firms && s.firms.length > 0 && s.firms.every((f: any) => f.assessmentDone)) ||
         (assessmentFilter === 'NOT_ASSESSED' && s.firms && s.firms.some((f: any) => !f.assessmentDone));
       
-      return matchesSearch && matchesCourse && matchesAssessment;
+      return matchesSearch && matchesCourse && matchesCounty && matchesAssessment;
     }).sort((a, b) => {
+      if (sortMode === 'GEO') {
+        const countyA = (a.firms && a.firms.length > 0 && a.firms[0].firmCounty) || 'ZZZ';
+        const countyB = (b.firms && b.firms.length > 0 && b.firms[0].firmCounty) || 'ZZZ';
+        const cmpCounty = countyA.localeCompare(countyB);
+        if (cmpCounty !== 0) return cmpCounty;
+        
+        const locA = (a.firms && a.firms.length > 0 && a.firms[0].exactLocation) || 'ZZZ';
+        const locB = (b.firms && b.firms.length > 0 && b.firms[0].exactLocation) || 'ZZZ';
+        const cmpLoc = locA.localeCompare(locB);
+        if (cmpLoc !== 0) return cmpLoc;
+      }
+
       const numA = a.admissionNumber || '';
       const numB = b.admissionNumber || '';
       return numA.localeCompare(numB, undefined, { numeric: true, sensitivity: 'base' });
@@ -236,14 +259,27 @@ export default function AdminDashboard() {
       (s.firms && s.firms.some((f: any) => f.firmName?.toLowerCase().includes(search.toLowerCase())));
       
     const matchesCourse = courseFilter === '' || s.course === courseFilter;
+    const matchesCounty = countyFilter === '' || (s.firms && s.firms.some((f: any) => f.firmCounty === countyFilter));
     
     const matchesAssessment = 
       assessmentFilter === 'ALL' ||
       (assessmentFilter === 'ASSESSED' && s.firms && s.firms.length > 0 && s.firms.every((f: any) => f.assessmentDone)) ||
       (assessmentFilter === 'NOT_ASSESSED' && s.firms && s.firms.some((f: any) => !f.assessmentDone));
     
-    return matchesSearch && matchesCourse && matchesAssessment;
+    return matchesSearch && matchesCourse && matchesCounty && matchesAssessment;
   }).sort((a, b) => {
+    if (sortMode === 'GEO') {
+      const countyA = (a.firms && a.firms.length > 0 && a.firms[0].firmCounty) || 'ZZZ';
+      const countyB = (b.firms && b.firms.length > 0 && b.firms[0].firmCounty) || 'ZZZ';
+      const cmpCounty = countyA.localeCompare(countyB);
+      if (cmpCounty !== 0) return cmpCounty;
+      
+      const locA = (a.firms && a.firms.length > 0 && a.firms[0].exactLocation) || 'ZZZ';
+      const locB = (b.firms && b.firms.length > 0 && b.firms[0].exactLocation) || 'ZZZ';
+      const cmpLoc = locA.localeCompare(locB);
+      if (cmpLoc !== 0) return cmpLoc;
+    }
+
     const numA = a.admissionNumber || '';
     const numB = b.admissionNumber || '';
     return numA.localeCompare(numB, undefined, { numeric: true, sensitivity: 'base' });
@@ -282,7 +318,7 @@ export default function AdminDashboard() {
             <select 
               value={courseFilter} 
               onChange={e => setCourseFilter(e.target.value)}
-              style={{ width: 'auto', minWidth: '200px', cursor: 'pointer', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', fontWeight: 500 }}
+              style={{ width: 'auto', minWidth: '180px', cursor: 'pointer', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', fontWeight: 500 }}
             >
               <option value="">All Courses</option>
               <option value="Computer Science">Computer Science</option>
@@ -291,13 +327,31 @@ export default function AdminDashboard() {
             </select>
 
             <select 
+              value={countyFilter} 
+              onChange={e => setCountyFilter(e.target.value)}
+              style={{ width: 'auto', minWidth: '160px', cursor: 'pointer', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', fontWeight: 500 }}
+            >
+              <option value="">All Locations</option>
+              {kenyaCounties.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+
+            <select 
               value={assessmentFilter} 
               onChange={e => setAssessmentFilter(e.target.value)}
-              style={{ width: 'auto', minWidth: '180px', cursor: 'pointer', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', fontWeight: 500 }}
+              style={{ width: 'auto', minWidth: '160px', cursor: 'pointer', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-color)', background: 'var(--surface-color)', fontWeight: 500 }}
             >
               <option value="ALL">All Statuses</option>
               <option value="ASSESSED">Fully Assessed</option>
               <option value="NOT_ASSESSED">Pending Assessment</option>
+            </select>
+
+            <select 
+              value={sortMode} 
+              onChange={e => setSortMode(e.target.value)}
+              style={{ width: 'auto', minWidth: '180px', cursor: 'pointer', padding: '1rem', borderRadius: '12px', border: '1px solid var(--primary-purple)', background: 'rgba(90, 61, 122, 0.05)', color: 'var(--primary-purple)', fontWeight: 600 }}
+            >
+              <option value="ADM">Sort by Admission</option>
+              <option value="GEO">Group Geographically</option>
             </select>
           </div>
 
