@@ -95,9 +95,20 @@ export default function AdminDashboard() {
         s.admissionNumber?.toLowerCase().includes(search.toLowerCase()) ||
         s.studentName?.toLowerCase().includes(search.toLowerCase()) ||
         (s.firms && s.firms.some((f: any) => f.firmName?.toLowerCase().includes(search.toLowerCase())));
+        
       const matchesCourse = courseFilter === '' || s.course === courseFilter;
-      return matchesSearch && matchesCourse;
-    }).sort((a, b) => getCompletionScore(b) - getCompletionScore(a));
+      
+      const matchesAssessment = 
+        assessmentFilter === 'ALL' ||
+        (assessmentFilter === 'ASSESSED' && s.firms && s.firms.length > 0 && s.firms.every((f: any) => f.assessmentDone)) ||
+        (assessmentFilter === 'NOT_ASSESSED' && s.firms && s.firms.some((f: any) => !f.assessmentDone));
+      
+      return matchesSearch && matchesCourse && matchesAssessment;
+    }).sort((a, b) => {
+      const numA = a.admissionNumber || '';
+      const numB = b.admissionNumber || '';
+      return numA.localeCompare(numB, undefined, { numeric: true, sensitivity: 'base' });
+    });
 
     currentFilteredStudents.forEach((student, index) => {
       const studentDetails = `${student.studentName || 'Not Provided'}\nPhone: ${student.phone || 'N/A'}\nEmail: ${student.email || 'N/A'}`;
