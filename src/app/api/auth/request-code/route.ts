@@ -41,23 +41,34 @@ export async function POST(request: Request) {
 
     // Attempt to send email
     if (process.env.RESEND_API_KEY) {
-      await resend.emails.send({
-        from: 'Machakos University <onboarding@resend.dev>', // Free tier Resend sender
-        to: email,
-        subject: 'Password Change Verification Code',
-        html: `
-          <div style="font-family: sans-serif; padding: 20px;">
-            <h2>Password Change Verification</h2>
-            <p>Hello,</p>
-            <p>You requested to change your password for the Machakos University Attachment Record system.</p>
-            <p>Your 4-digit verification code is:</p>
-            <h1 style="letter-spacing: 5px; color: #2E1A47;">${code}</h1>
-            <p>This code will expire in 10 minutes.</p>
-            <p>If you did not request this change, please ignore this email.</p>
-          </div>
-        `
-      });
-      console.log(`Email sent via Resend to ${email}`);
+      try {
+        const resendResult = await resend.emails.send({
+          from: 'Machakos University <onboarding@resend.dev>', // Free tier Resend sender
+          to: email,
+          subject: 'Password Change Verification Code',
+          html: `
+            <div style="font-family: sans-serif; padding: 20px;">
+              <h2>Password Change Verification</h2>
+              <p>Hello,</p>
+              <p>You requested to change your password for the Machakos University Attachment Record system.</p>
+              <p>Your 4-digit verification code is:</p>
+              <h1 style="letter-spacing: 5px; color: #2E1A47;">${code}</h1>
+              <p>This code will expire in 10 minutes.</p>
+              <p>If you did not request this change, please ignore this email.</p>
+            </div>
+          `
+        });
+        
+        if (resendResult.error) {
+          console.error('Resend API Error:', resendResult.error);
+          return NextResponse.json({ error: `Email failed to send: ${resendResult.error.message}` }, { status: 400 });
+        }
+        
+        console.log(`Email sent via Resend to ${email}`);
+      } catch (err: any) {
+        console.error('Resend Exception:', err);
+        return NextResponse.json({ error: `Email failed to send: ${err.message}` }, { status: 400 });
+      }
     } else {
       // Fallback for testing when no API key is provided
       console.log(`\n\n=== PASSWORD RESET CODE ===\nUser: ${user.admissionNumber}\nEmail: ${email}\nCode: ${code}\n===========================\n\n`);

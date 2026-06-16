@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogOut, Save, User, Building, UserCheck, Calendar, BookOpen, Plus, Trash2, CheckCircle } from 'lucide-react';
+import { LogOut, Save, User, Building, UserCheck, Calendar, BookOpen, Plus, Trash2, CheckCircle, Eye, EyeOff } from 'lucide-react';
 
 export default function DashboardPage() {
   const [data, setData] = useState<any>(null);
@@ -16,6 +16,8 @@ export default function DashboardPage() {
   const [pwdCodeSent, setPwdCodeSent] = useState(false);
   const [pwdCode, setPwdCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [pwdLoading, setPwdLoading] = useState(false);
   const [pwdMessage, setPwdMessage] = useState({ text: '', type: '' });
   
@@ -142,6 +144,10 @@ export default function DashboardPage() {
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      setPwdMessage({ text: 'Passwords do not match.', type: 'error' });
+      return;
+    }
     setPwdLoading(true);
     setPwdMessage({ text: '', type: '' });
     try {
@@ -156,6 +162,8 @@ export default function DashboardPage() {
         setPwdCodeSent(false);
         setPwdCode('');
         setNewPassword('');
+        setConfirmPassword('');
+        setShowPassword(false);
       } else {
         setPwdMessage({ text: data.error || 'Failed to change password.', type: 'error' });
       }
@@ -420,20 +428,47 @@ export default function DashboardPage() {
                   style={{ fontSize: '1.2rem', letterSpacing: '4px', textAlign: 'center' }}
                 />
               </div>
-              <div className="form-group">
+              <div className="form-group" style={{ position: 'relative' }}>
                 <label>New Password (min 6 chars)</label>
-                <input 
-                  type="password" 
-                  value={newPassword}
-                  onChange={e => setNewPassword(e.target.value)}
-                  required 
-                  minLength={6}
-                />
+                <div style={{ display: 'flex', position: 'relative' }}>
+                  <input 
+                    type={showPassword ? "text" : "password"}
+                    value={newPassword}
+                    onChange={e => setNewPassword(e.target.value)}
+                    required 
+                    minLength={6}
+                    style={{ paddingRight: '40px' }}
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => setShowPassword(!showPassword)} 
+                    style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-secondary)' }}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
-              <button type="submit" disabled={pwdLoading || pwdCode.length < 4 || newPassword.length < 6} className="btn btn-primary">
+              <div className="form-group" style={{ position: 'relative' }}>
+                <label>Confirm New Password</label>
+                <div style={{ display: 'flex', position: 'relative' }}>
+                  <input 
+                    type={showPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={e => setConfirmPassword(e.target.value)}
+                    required 
+                    minLength={6}
+                    style={{ paddingRight: '40px' }}
+                  />
+                </div>
+              </div>
+              <button type="submit" disabled={pwdLoading || pwdCode.length < 4 || newPassword.length < 6 || confirmPassword.length < 6} className="btn btn-primary">
                 {pwdLoading ? 'Updating...' : 'Update Password'}
               </button>
-              <button type="button" onClick={() => setPwdCodeSent(false)} className="btn btn-secondary" style={{ marginTop: '0.5rem' }}>
+              <button type="button" onClick={() => {
+                setPwdCodeSent(false);
+                setNewPassword('');
+                setConfirmPassword('');
+              }} className="btn btn-secondary" style={{ marginTop: '0.5rem' }}>
                 Cancel
               </button>
             </form>
