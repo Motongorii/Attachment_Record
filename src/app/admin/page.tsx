@@ -52,15 +52,24 @@ export default function AdminDashboard() {
       doc.text('Machakos University - Comprehensive Attachment Records', 36, 18);
       doc.setFontSize(10);
       doc.setTextColor(100);
-      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 36, 24);
+      doc.text(`Generated on: ${new Date().toLocaleString()}`, 36, 24);
     } else {
       doc.setFontSize(16);
       doc.setTextColor(90, 61, 122);
       doc.text('Machakos University - Comprehensive Attachment Records', 14, 15);
       doc.setFontSize(10);
       doc.setTextColor(100);
-      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 22);
+      doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 22);
     }
+
+    const getCourseDisplay = (student: any) => {
+      if (student.course && student.course !== 'Unknown Course') return student.course;
+      const prefix = student.admissionNumber?.substring(0, 3).toUpperCase();
+      if (prefix === 'J17') return 'Computer Science';
+      if (prefix === 'J18') return 'Cloud Computing';
+      if (prefix === 'J77') return 'Information Technology';
+      return 'Unknown Course';
+    };
 
     const tableColumn = [
       "No.", 
@@ -105,19 +114,18 @@ export default function AdminDashboard() {
         : 'N/A';
 
       const statusSummary = student.firms && student.firms.length > 0 
-        ? student.firms.map((f: any) => `${f.assessmentDone ? 'COMPLETED' : 'PENDING'}\n\n`).join('\n\n').trim() // Matches 3 lines height of firmsSummary
+        ? student.firms.map((f: any) => `${f.assessmentDone ? 'COMPLETED' : 'PENDING'}\n\n`).join('\n\n').trim()
         : 'N/A';
 
-      const studentData = [
+      tableRows.push([
         index + 1,
-        student.admissionNumber,
+        student.admissionNumber || 'N/A',
         studentDetails,
-        student.course || 'No Course',
+        getCourseDisplay(student),
         firmsSummary,
         datesSummary,
         statusSummary
-      ];
-      tableRows.push(studentData);
+      ]);
     });
 
     autoTable(doc, {
@@ -140,16 +148,15 @@ export default function AdminDashboard() {
         halign: 'center'
       },
       columnStyles: {
-        0: { cellWidth: 10, halign: 'center' }, // No.
-        1: { cellWidth: 25 }, // Admission
-        2: { cellWidth: 50 }, // Student Details
-        3: { cellWidth: 35 }, // Course
-        4: { cellWidth: 75 }, // Firms
-        5: { cellWidth: 45 }, // Dates
-        6: { cellWidth: 25, halign: 'center' }  // Status
+        0: { cellWidth: 10, halign: 'center' },
+        1: { cellWidth: 25 },
+        2: { cellWidth: 50 },
+        3: { cellWidth: 35 },
+        4: { cellWidth: 75 },
+        5: { cellWidth: 45 },
+        6: { cellWidth: 25, halign: 'center' }
       },
       didDrawPage: (data) => {
-        // Footer pagination
         const str = `Page ${data.pageNumber}`;
         doc.setFontSize(8);
         doc.setTextColor(150);
@@ -163,7 +170,6 @@ export default function AdminDashboard() {
   };
 
   const handleAssessmentToggle = async (firmId: string, currentStatus: boolean) => {
-    // Optimistic UI update
     setStudents(prev => prev.map(student => ({
       ...student,
       firms: student.firms?.map((firm: any) => 
@@ -271,7 +277,6 @@ export default function AdminDashboard() {
           </div>
         </div>
         
-        {/* Course Filter Pills */}
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center', marginTop: '0.5rem' }}>
           <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 600, marginRight: '0.5rem' }}>Quick Filters:</span>
           {['', 'Computer Science', 'Cloud Computing', 'Information Technology'].map(course => (
@@ -298,12 +303,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div>
-        <div style={{ marginBottom: '2rem' }} className="print-only">
-          <h2 style={{ textAlign: 'center', color: 'var(--primary-purple)', marginBottom: '1rem', fontSize: '24px' }}>Machakos University</h2>
-          <h3 style={{ textAlign: 'center', color: 'var(--text-secondary)', marginBottom: '2rem' }}>Comprehensive Attachment Records</h3>
-        </div>
-
+      <div className="hide-on-print">
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {filteredStudents.length === 0 ? (
             <div className="glass-card" style={{ textAlign: 'center', padding: '4rem 2rem' }}>
@@ -318,7 +318,6 @@ export default function AdminDashboard() {
 
               return (
                 <div key={student.id} className="glass-card animate-fade-in" style={{ padding: '0', overflow: 'hidden', animationDelay: (i * 0.05) + 's' }}>
-                  {/* High-level Row */}
                   <div 
                     onClick={() => toggleRow(student.id)}
                     className="hide-on-print"
@@ -347,7 +346,7 @@ export default function AdminDashboard() {
                         fontSize: '0.85rem',
                         fontWeight: 600 
                       }}>
-                        {student.course || 'No Course Set'}
+                        {getCourseDisplay(student)}
                       </span>
                     </div>
                     <div>
@@ -359,17 +358,8 @@ export default function AdminDashboard() {
                     </div>
                   </div>
 
-                  {/* Print-friendly header */}
-                  <div className="print-only" style={{ padding: '1rem 2rem', borderBottom: '2px solid #eee', background: '#fafafa' }}>
-                    <h3 style={{ margin: 0, fontSize: '18px' }}>{student.studentName || 'Unnamed Student'} ({student.admissionNumber})</h3>
-                    <p style={{ margin: '4px 0 0', fontSize: '14px', color: '#666' }}>Course: {student.course || 'N/A'}</p>
-                  </div>
-
-                  {/* Expanded Details Panel */}
-                  {(isExpanded || typeof window === 'undefined') && (
+                  {(isExpanded) && (
                     <div className="expanded-content" style={{ padding: '2rem', borderTop: '1px solid var(--border-color)', background: 'var(--bg-color)' }}>
-                      
-                      {/* Student Personal Info */}
                       <div style={{ marginBottom: '2.5rem' }}>
                         <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-purple)', fontSize: '1.1rem', marginBottom: '1rem', fontWeight: 600 }}>
                           <UserCheck size={18} /> Personal Details
@@ -392,38 +382,12 @@ export default function AdminDashboard() {
                             <span className="info-value" style={{ fontSize: '0.95rem', color: offDaysList ? 'inherit' : 'var(--text-secondary)' }}>{offDaysList || 'None'}</span>
                           </div>
                         </div>
-                        <div className="hide-on-print" style={{ marginTop: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
-                          <button 
-                            onClick={async (e) => {
-                              e.stopPropagation();
-                              if (confirm("Are you sure you want to reset this student's password back to their Admission Number?")) {
-                                try {
-                                  const res = await fetch('/api/admin', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ action: 'resetPassword', studentId: student.id })
-                                  });
-                                  if (res.ok) alert('Password reset successfully!');
-                                  else alert('Failed to reset password.');
-                                } catch (err) {
-                                  alert('Error resetting password.');
-                                }
-                              }
-                            }}
-                            className="btn btn-secondary" 
-                            style={{ fontSize: '0.85rem', color: 'var(--error-color)', borderColor: 'var(--error-color)', background: 'transparent' }}
-                          >
-                            Reset Student Password
-                          </button>
-                        </div>
                       </div>
 
-                      {/* Firms & Assessment */}
                       <div>
                         <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-purple)', fontSize: '1.1rem', marginBottom: '1rem', fontWeight: 600 }}>
                           <Building size={18} /> Attachment Placements
                         </h4>
-                        
                         {!student.firms || student.firms.length === 0 ? (
                           <div style={{ padding: '2rem', textAlign: 'center', background: 'var(--surface-color)', borderRadius: '12px', border: '1px dashed var(--border-color)' }}>
                             <p style={{ color: 'var(--text-secondary)' }}>No attachment firms recorded.</p>
@@ -432,8 +396,6 @@ export default function AdminDashboard() {
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                             {student.firms.map((firm: any, fIndex: number) => (
                               <div key={firm.id} style={{ background: 'var(--surface-color)', borderRadius: '12px', border: '1px solid var(--border-color)', overflow: 'hidden' }}>
-                                
-                                {/* Firm Header & Assessment Toggle */}
                                 <div style={{ padding: '1.25rem 1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', background: 'linear-gradient(to right, rgba(90, 61, 122, 0.02), transparent)' }}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                                     <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'var(--primary-purple)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
@@ -441,7 +403,6 @@ export default function AdminDashboard() {
                                     </div>
                                     <h5 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>{firm.firmName || 'Unnamed Firm'}</h5>
                                   </div>
-                                  
                                   <label className="hide-on-print" style={{ 
                                     display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', 
                                     padding: '0.5rem 1rem', borderRadius: '30px', 
@@ -458,15 +419,8 @@ export default function AdminDashboard() {
                                     {firm.assessmentDone ? <CheckCircle2 size={18} /> : <div style={{ width: '16px', height: '16px', border: '2px solid currentColor', borderRadius: '50%' }}></div>}
                                     {firm.assessmentDone ? 'Assessment Completed' : 'Mark as Assessed'}
                                   </label>
-                                  <span className="print-only" style={{ fontWeight: 'bold', color: firm.assessmentDone ? '#10B981' : '#666' }}>
-                                    {firm.assessmentDone ? '[ASSESSMENT COMPLETED]' : '[ASSESSMENT PENDING]'}
-                                  </span>
                                 </div>
-
-                                {/* Firm Details Grid */}
                                 <div style={{ padding: '1.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-                                  
-                                  {/* Company Details */}
                                   <div>
                                     <p style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontWeight: 600 }}>Company Info</p>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -475,8 +429,6 @@ export default function AdminDashboard() {
                                       <div style={{ display: 'flex', gap: '0.5rem' }}><Calendar size={16} color="var(--text-secondary)" /> <span style={{ fontSize: '0.95rem' }}>{firm.startDate ? new Date(firm.startDate).toLocaleDateString() : 'N/A'} — {firm.endDate ? new Date(firm.endDate).toLocaleDateString() : 'N/A'}</span></div>
                                     </div>
                                   </div>
-
-                                  {/* Supervisor Details */}
                                   <div>
                                     <p style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)', marginBottom: '0.75rem', fontWeight: 600 }}>Supervisor Info</p>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -485,7 +437,6 @@ export default function AdminDashboard() {
                                       <div style={{ display: 'flex', gap: '0.5rem' }}><Mail size={16} color="var(--text-secondary)" /> <span style={{ fontSize: '0.95rem' }}>{firm.supervisorEmail || 'N/A'}</span></div>
                                     </div>
                                   </div>
-
                                 </div>
                               </div>
                             ))}
@@ -501,11 +452,67 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      <div className="print-only-table-wrapper" style={{ display: 'none' }}>
+        <h2 style={{ textAlign: 'center', marginBottom: '1rem', color: '#000' }}>Machakos University - Comprehensive Attachment Records</h2>
+        <p style={{ textAlign: 'center', marginBottom: '2rem', color: '#000', fontSize: '12px' }}>Generated on: {new Date().toLocaleString()}</p>
+        <table className="print-only-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'left', backgroundColor: '#f2f2f2' }}>No.</th>
+              <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'left', backgroundColor: '#f2f2f2' }}>Admission</th>
+              <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'left', backgroundColor: '#f2f2f2' }}>Student Details</th>
+              <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'left', backgroundColor: '#f2f2f2' }}>Course</th>
+              <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'left', backgroundColor: '#f2f2f2' }}>Firm Details</th>
+              <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'left', backgroundColor: '#f2f2f2' }}>Attachment Period</th>
+              <th style={{ border: '1px solid #000', padding: '8px', textAlign: 'left', backgroundColor: '#f2f2f2' }}>Assessment</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredStudents.map((student, i) => (
+              <tr key={student.id}>
+                <td style={{ border: '1px solid #000', padding: '8px', fontSize: '12px' }}>{i + 1}</td>
+                <td style={{ border: '1px solid #000', padding: '8px', fontSize: '12px' }}>{student.admissionNumber}</td>
+                <td style={{ border: '1px solid #000', padding: '8px', fontSize: '12px' }}>
+                  <strong>{student.studentName || 'Not Provided'}</strong><br/>
+                  Phone: {student.phone || 'N/A'}<br/>
+                  Email: {student.email || 'N/A'}
+                </td>
+                <td style={{ border: '1px solid #000', padding: '8px', fontSize: '12px' }}>{getCourseDisplay(student)}</td>
+                <td style={{ border: '1px solid #000', padding: '8px', fontSize: '12px' }}>
+                  {student.firms?.map((f: any, idx: number) => (
+                    <div key={idx} style={{ marginBottom: '8px' }}>
+                      <strong>{f.firmName}</strong> - {f.firmCounty}<br/>
+                      Loc: {f.exactLocation}<br/>
+                      Sup. Phone: {f.supervisorPhone}
+                    </div>
+                  ))}
+                </td>
+                <td style={{ border: '1px solid #000', padding: '8px', fontSize: '12px' }}>
+                  {student.firms?.map((f: any, idx: number) => (
+                    <div key={idx} style={{ marginBottom: '8px' }}>
+                      {f.startDate ? new Date(f.startDate).toLocaleDateString() : 'N/A'} to {f.endDate ? new Date(f.endDate).toLocaleDateString() : 'N/A'}
+                    </div>
+                  ))}
+                </td>
+                <td style={{ border: '1px solid #000', padding: '8px', fontSize: '12px' }}>
+                  {student.firms?.map((f: any, idx: number) => (
+                    <div key={idx} style={{ marginBottom: '8px' }}>
+                      {f.assessmentDone ? 'COMPLETED' : 'PENDING'}
+                    </div>
+                  ))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
       <style jsx global>{`
         .print-only { display: none; }
         @media print {
           .hide-on-print { display: none !important; }
           .print-only { display: block; }
+          .print-only-table-wrapper { display: block !important; }
           body { background: white; color: black; }
           .container { padding: 0; max-width: none; }
           .expanded-content { display: block !important; border: 1px solid #ccc; margin-bottom: 2rem; padding: 1rem !important; }

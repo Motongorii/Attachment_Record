@@ -448,23 +448,24 @@ export default function DashboardPage() {
       {/* Premium Toast Notification */}
       {showToast && (
         <div style={{
-          position: 'fixed', bottom: '2rem', right: '2rem', background: 'var(--surface-color)',
-          border: '1px solid var(--success-color)', borderLeft: '4px solid var(--success-color)',
-          padding: '1rem 1.5rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.75rem',
-          boxShadow: '0 10px 25px rgba(0,0,0,0.1)', zIndex: 1000,
-          animation: 'slideUp 0.3s ease forwards'
+          position: 'fixed', top: '2rem', right: '50%', transform: 'translateX(50%)',
+          background: 'linear-gradient(135deg, var(--success-color), #059669)',
+          color: 'white',
+          padding: '1rem 2rem', borderRadius: '50px', display: 'flex', alignItems: 'center', gap: '0.75rem',
+          boxShadow: '0 10px 40px rgba(16, 185, 129, 0.4)', zIndex: 1000,
+          animation: 'slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards'
         }}>
-          <CheckCircle size={20} color="var(--success-color)" />
+          <CheckCircle size={24} color="white" strokeWidth={2.5} />
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-color)' }}>Success</span>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Details saved successfully!</span>
+            <span style={{ fontWeight: 700, fontSize: '1.05rem', letterSpacing: '0.5px' }}>Success!</span>
+            <span style={{ fontSize: '0.9rem', opacity: 0.9 }}>Your details have been saved successfully.</span>
           </div>
         </div>
       )}
       <style>{`
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
+        @keyframes slideDown {
+          from { opacity: 0; transform: translate(50%, -20px); }
+          to { opacity: 1; transform: translate(50%, 0); }
         }
       `}</style>
     </>
