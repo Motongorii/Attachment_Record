@@ -456,16 +456,16 @@ export default function DashboardPage() {
                 <div>
                   <h4 style={{ marginBottom: '1rem', color: 'var(--text-secondary)' }}><UserCheck size={16} style={{display:'inline', verticalAlign:'text-bottom'}} /> Supervisor</h4>
                   <div className="form-group" style={{ marginBottom: '1.25rem' }}>
-                    <label>Supervisor's Name</label>
-                    <input value={firm.supervisorName || ''} onChange={e => handleFirmChange(index, 'supervisorName', e.target.value)} required />
+                    <label>Supervisor's Name (Optional)</label>
+                    <input value={firm.supervisorName || ''} onChange={e => handleFirmChange(index, 'supervisorName', e.target.value)} />
                   </div>
                   <div className="form-group" style={{ marginBottom: '1.25rem' }}>
-                    <label>Phone Number</label>
-                    <input type="tel" value={firm.supervisorPhone || ''} onChange={e => handleFirmChange(index, 'supervisorPhone', e.target.value)} required />
+                    <label>Phone Number (Optional)</label>
+                    <input type="tel" value={firm.supervisorPhone || ''} onChange={e => handleFirmChange(index, 'supervisorPhone', e.target.value)} />
                   </div>
                   <div className="form-group">
-                    <label>Email Address</label>
-                    <input type="email" value={firm.supervisorEmail || ''} onChange={e => handleFirmChange(index, 'supervisorEmail', e.target.value)} required />
+                    <label>Email Address (Optional)</label>
+                    <input type="email" value={firm.supervisorEmail || ''} onChange={e => handleFirmChange(index, 'supervisorEmail', e.target.value)} />
                   </div>
                 </div>
               </div>
