@@ -178,6 +178,70 @@ export default function DashboardPage() {
             <LogOut size={18} /> Logout
           </button>
         </header>
+        {/* Security / Password Change */}
+        <div className="glass-card stagger-2" style={{ marginBottom: '2rem', border: '1px solid var(--primary-purple-light)' }}>
+          <h3 className="section-title" style={{ color: 'var(--primary-purple)' }}>
+            <div className="icon-wrapper" style={{ background: 'var(--primary-purple)', color: 'white' }}>🛡️</div> Security Settings
+          </h3>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Change your account password securely. If you ever forget your password and get locked out, an Administrator can reset it for you.</p>
+          
+          {pwdMessage.text && (
+            <div style={{ padding: '1rem', borderRadius: '8px', marginBottom: '1rem', background: pwdMessage.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: pwdMessage.type === 'success' ? 'var(--success-color)' : 'var(--error-color)', fontWeight: 500 }}>
+              {pwdMessage.text}
+            </div>
+          )}
+
+          <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '400px' }}>
+            <div className="form-group" style={{ position: 'relative' }}>
+              <label>Current Password</label>
+              <div style={{ display: 'flex', position: 'relative' }}>
+                <input 
+                  type={showPassword ? "text" : "password"}
+                  value={currentPassword}
+                  onChange={e => setCurrentPassword(e.target.value)}
+                  required 
+                  style={{ paddingRight: '40px' }}
+                />
+                <button 
+                  type="button" 
+                  onClick={() => setShowPassword(!showPassword)} 
+                  style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-secondary)' }}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+            <div className="form-group" style={{ position: 'relative' }}>
+              <label>New Password (min 6 chars)</label>
+              <div style={{ display: 'flex', position: 'relative' }}>
+                <input 
+                  type={showPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  required 
+                  minLength={6}
+                  style={{ paddingRight: '40px' }}
+                />
+              </div>
+            </div>
+            <div className="form-group" style={{ position: 'relative' }}>
+              <label>Confirm New Password</label>
+              <div style={{ display: 'flex', position: 'relative' }}>
+                <input 
+                  type={showPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  required 
+                  minLength={6}
+                  style={{ paddingRight: '40px' }}
+                />
+              </div>
+            </div>
+            <button type="submit" disabled={pwdLoading || !currentPassword || newPassword.length < 6 || confirmPassword.length < 6} className="btn btn-primary">
+              {pwdLoading ? 'Updating...' : 'Update Password'}
+            </button>
+          </form>
+        </div>
 
         <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           
@@ -227,14 +291,20 @@ export default function DashboardPage() {
               </div>
               <div className="form-group">
                 <label>Course</label>
-                <select value={data.course || ''} onChange={e => handleChange('course', e.target.value)} required>
-                  <option value="">Select Course...</option>
-                  <option value="Computer Science">Computer Science</option>
-                  <option value="Cloud Computing">Cloud Computing</option>
-                  <option value="Information Technology">Information Technology</option>
-                  <option value="Software Engineering">Software Engineering</option>
-                  <option value="Other">Other</option>
-                </select>
+                <input 
+                  type="text" 
+                  list="course-options"
+                  value={data.course || ''} 
+                  onChange={e => handleChange('course', e.target.value)} 
+                  placeholder="e.g. Computer Science"
+                  required 
+                />
+                <datalist id="course-options">
+                  <option value="Computer Science" />
+                  <option value="Cloud Computing" />
+                  <option value="Information Technology" />
+                  <option value="Software Engineering" />
+                </datalist>
               </div>
             </div>
           </div>
@@ -372,70 +442,7 @@ export default function DashboardPage() {
           </div>
         </form>
 
-        {/* Security / Password Change */}
-        <div className="glass-card stagger-5" style={{ marginTop: '2rem', border: '1px solid var(--primary-purple-light)' }}>
-          <h3 className="section-title" style={{ color: 'var(--primary-purple)' }}>
-            <div className="icon-wrapper" style={{ background: 'var(--primary-purple)', color: 'white' }}>🛡️</div> Security Settings
-          </h3>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>Change your account password securely. If you ever forget your password and get locked out, an Administrator can reset it for you.</p>
-          
-          {pwdMessage.text && (
-            <div style={{ padding: '1rem', borderRadius: '8px', marginBottom: '1rem', background: pwdMessage.type === 'success' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: pwdMessage.type === 'success' ? 'var(--success-color)' : 'var(--error-color)', fontWeight: 500 }}>
-              {pwdMessage.text}
-            </div>
-          )}
 
-          <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '400px' }}>
-            <div className="form-group" style={{ position: 'relative' }}>
-              <label>Current Password</label>
-              <div style={{ display: 'flex', position: 'relative' }}>
-                <input 
-                  type={showPassword ? "text" : "password"}
-                  value={currentPassword}
-                  onChange={e => setCurrentPassword(e.target.value)}
-                  required 
-                  style={{ paddingRight: '40px' }}
-                />
-                <button 
-                  type="button" 
-                  onClick={() => setShowPassword(!showPassword)} 
-                  style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-secondary)' }}
-                >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </div>
-            <div className="form-group" style={{ position: 'relative' }}>
-              <label>New Password (min 6 chars)</label>
-              <div style={{ display: 'flex', position: 'relative' }}>
-                <input 
-                  type={showPassword ? "text" : "password"}
-                  value={newPassword}
-                  onChange={e => setNewPassword(e.target.value)}
-                  required 
-                  minLength={6}
-                  style={{ paddingRight: '40px' }}
-                />
-              </div>
-            </div>
-            <div className="form-group" style={{ position: 'relative' }}>
-              <label>Confirm New Password</label>
-              <div style={{ display: 'flex', position: 'relative' }}>
-                <input 
-                  type={showPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={e => setConfirmPassword(e.target.value)}
-                  required 
-                  minLength={6}
-                  style={{ paddingRight: '40px' }}
-                />
-              </div>
-            </div>
-            <button type="submit" disabled={pwdLoading || !currentPassword || newPassword.length < 6 || confirmPassword.length < 6} className="btn btn-primary">
-              {pwdLoading ? 'Updating...' : 'Update Password'}
-            </button>
-          </form>
-        </div>
       </div>
 
       {/* Premium Toast Notification */}
