@@ -386,7 +386,7 @@ export default function AdminDashboard() {
                           <button 
                             onClick={async (e) => {
                               e.stopPropagation();
-                              if (confirm('Are you sure you want to reset this student\\'s password back to their Admission Number?')) {
+                              if (confirm("Are you sure you want to reset this student's password back to their Admission Number?")) {
                                 try {
                                   const res = await fetch('/api/admin', {
                                     method: 'POST',
