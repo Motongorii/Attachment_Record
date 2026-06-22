@@ -40,7 +40,7 @@ export default function DashboardPage() {
         setData(json);
       });
 
-    const targetDate = new Date('2026-06-19T23:59:59').getTime();
+    const targetDate = new Date('2026-07-23T00:00:00').getTime();
     
     const interval = setInterval(() => {
       const now = new Date().getTime();
@@ -193,25 +193,57 @@ export default function DashboardPage() {
       <div className="container animate-fade-in" style={{ paddingTop: '3rem', paddingBottom: '5rem' }}>
         
         {timeLeft && (
-          <div className="stagger-1" style={{ 
-            background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(220, 38, 38, 0.03) 100%)', 
-            border: '1px solid rgba(239, 68, 68, 0.2)', 
-            borderRadius: '16px', 
-            padding: '1.5rem', 
+          <div className="stagger-1 glass-card" style={{ 
+            background: 'linear-gradient(135deg, rgba(46, 26, 71, 0.05) 0%, rgba(10, 61, 145, 0.03) 100%)', 
+            border: '1px solid rgba(46, 26, 71, 0.1)', 
+            padding: '2rem', 
             marginBottom: '2.5rem',
             display: 'flex', 
             flexDirection: 'column', 
             alignItems: 'center', 
             justifyContent: 'center',
-            textAlign: 'center'
+            textAlign: 'center',
+            position: 'relative',
+            overflow: 'hidden'
           }}>
-            <h3 style={{ color: '#DC2626', fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Clock size={20} /> Attachment Details Submission Deadline
-            </h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem', fontWeight: 500 }}>
-              Friday, June 19th, 2026
+            <div style={{ 
+              position: 'absolute', top: 0, left: 0, right: 0, height: '4px', 
+              background: 'linear-gradient(90deg, var(--primary-purple), var(--primary-blue), var(--accent-gold))' 
+            }} />
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
+              <div style={{ 
+                background: 'linear-gradient(135deg, var(--primary-purple), var(--primary-blue))',
+                borderRadius: '50%',
+                padding: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                boxShadow: '0 4px 10px rgba(46, 26, 71, 0.2)'
+              }}>
+                <Clock size={20} strokeWidth={2.5} />
+              </div>
+              <h3 style={{ 
+                fontSize: '1.4rem', 
+                fontWeight: 800, 
+                margin: 0,
+                background: 'linear-gradient(135deg, var(--primary-purple), var(--primary-blue))',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}>
+                ASSESSMENT BEGINS AS FROM 23RD JULY
+              </h3>
+            </div>
+            
+            <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', marginBottom: '2rem', fontWeight: 500 }}>
+              Thursday, July 23rd, 2026
             </p>
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            
+            <div style={{ display: 'flex', gap: '1.25rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               {[
                 { label: 'Days', value: timeLeft.days },
                 { label: 'Hours', value: timeLeft.hours },
@@ -219,17 +251,18 @@ export default function DashboardPage() {
                 { label: 'Seconds', value: timeLeft.seconds }
               ].map((time, idx) => (
                 <div key={idx} style={{ 
-                  background: 'white', 
-                  minWidth: '80px', 
-                  padding: '1rem 0.75rem', 
-                  borderRadius: '12px', 
-                  boxShadow: '0 4px 12px rgba(220, 38, 38, 0.08)',
+                  background: 'var(--surface-color)', 
+                  minWidth: '90px', 
+                  padding: '1.25rem 1rem', 
+                  borderRadius: '16px', 
+                  boxShadow: '0 8px 25px rgba(46, 26, 71, 0.06)',
                   display: 'flex', 
                   flexDirection: 'column', 
-                  alignItems: 'center'
+                  alignItems: 'center',
+                  border: '1px solid rgba(255,255,255,0.8)'
                 }}>
-                  <span style={{ fontSize: '1.75rem', fontWeight: 800, color: '#DC2626', lineHeight: 1 }}>{time.value.toString().padStart(2, '0')}</span>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#666', letterSpacing: '0.05em', textTransform: 'uppercase', marginTop: '0.5rem' }}>{time.label}</span>
+                  <span style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--primary-purple)', lineHeight: 1 }}>{time.value.toString().padStart(2, '0')}</span>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '0.75rem' }}>{time.label}</span>
                 </div>
               ))}
             </div>
