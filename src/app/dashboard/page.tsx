@@ -192,82 +192,40 @@ export default function DashboardPage() {
       
       <div className="container animate-fade-in" style={{ paddingTop: '3rem', paddingBottom: '5rem' }}>
         
-        {timeLeft && (
-          <div className="stagger-1 glass-card" style={{ 
-            background: 'linear-gradient(135deg, rgba(46, 26, 71, 0.05) 0%, rgba(10, 61, 145, 0.03) 100%)', 
-            border: '1px solid rgba(46, 26, 71, 0.1)', 
-            padding: '2rem', 
-            marginBottom: '2.5rem',
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            textAlign: 'center',
-            position: 'relative',
-            overflow: 'hidden'
-          }}>
-            <div style={{ 
-              position: 'absolute', top: 0, left: 0, right: 0, height: '4px', 
-              background: 'linear-gradient(90deg, var(--primary-purple), var(--primary-blue), var(--accent-gold))' 
-            }} />
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-              <div style={{ 
-                background: 'linear-gradient(135deg, var(--primary-purple), var(--primary-blue))',
-                borderRadius: '50%',
-                padding: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                boxShadow: '0 4px 10px rgba(46, 26, 71, 0.2)'
-              }}>
-                <Clock size={20} strokeWidth={2.5} />
-              </div>
-              <h3 style={{ 
-                fontSize: '1.4rem', 
-                fontWeight: 800, 
-                margin: 0,
-                background: 'linear-gradient(135deg, var(--primary-purple), var(--primary-blue))',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px'
-              }}>
-                ASSESSMENT BEGINS MID JULY
-              </h3>
-            </div>
-            
-            <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', marginBottom: '2rem', fontWeight: 500 }}>
-              Mid-July 2026
-            </p>
-            
-            <div style={{ display: 'flex', gap: '1.25rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              {[
-                { label: 'Days', value: timeLeft.days },
-                { label: 'Hours', value: timeLeft.hours },
-                { label: 'Minutes', value: timeLeft.minutes },
-                { label: 'Seconds', value: timeLeft.seconds }
-              ].map((time, idx) => (
-                <div key={idx} style={{ 
-                  background: 'var(--surface-color)', 
-                  minWidth: '90px', 
-                  padding: '1.25rem 1rem', 
-                  borderRadius: '16px', 
-                  boxShadow: '0 8px 25px rgba(46, 26, 71, 0.06)',
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  alignItems: 'center',
-                  border: '1px solid rgba(255,255,255,0.8)'
-                }}>
-                  <span style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--primary-purple)', lineHeight: 1 }}>{time.value.toString().padStart(2, '0')}</span>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: '0.75rem' }}>{time.label}</span>
-                </div>
-              ))}
-            </div>
+        <div className="stagger-1 glass-card" style={{ 
+          padding: '2rem', 
+          marginBottom: '2.5rem',
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          textAlign: 'center',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <div style={{ 
+            position: 'absolute', top: 0, left: 0, right: 0, height: '4px', 
+            background: 'var(--primary-purple)' 
+          }} />
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+            <Clock size={24} color="var(--primary-purple)" strokeWidth={2.5} />
+            <h3 style={{ 
+              fontSize: '1.4rem', 
+              fontWeight: 800, 
+              margin: 0,
+              color: 'var(--primary-purple)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              ASSESSMENT BEGINS MID JULY
+            </h3>
           </div>
-        )}
+          
+          <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', margin: 0, fontWeight: 500 }}>
+            Mid-July 2026
+          </p>
+        </div>
 
         <header className="page-header stagger-1">
           <div>
