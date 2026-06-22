@@ -16,7 +16,16 @@ const kenyaCounties = [
 
 export default function AdminDashboard() {
   const getCourseDisplay = (student: any) => {
-    if (student.course && student.course !== 'Unknown Course') return student.course;
+    if (student.course && student.course !== 'Unknown Course') {
+      const lowerCourse = student.course.toLowerCase().trim();
+      if (
+        lowerCourse.includes('information technology') ||
+        lowerCourse.includes('information and technology')
+      ) {
+        return 'Information Technology';
+      }
+      return student.course;
+    }
     const prefix = student.admissionNumber?.substring(0, 3).toUpperCase();
     if (prefix === 'J17') return 'Computer Science';
     if (prefix === 'J18') return 'Cloud Computing';
