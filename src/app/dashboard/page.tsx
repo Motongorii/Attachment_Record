@@ -40,7 +40,7 @@ export default function DashboardPage() {
         setData(json);
       });
 
-    const targetDate = new Date('2026-07-23T00:00:00').getTime();
+    const targetDate = new Date('2026-07-15T00:00:00').getTime();
     
     const interval = setInterval(() => {
       const now = new Date().getTime();
@@ -235,12 +235,12 @@ export default function DashboardPage() {
                 textTransform: 'uppercase',
                 letterSpacing: '0.5px'
               }}>
-                ASSESSMENT BEGINS AS FROM 23RD JULY
+                ASSESSMENT BEGINS MID JULY
               </h3>
             </div>
             
             <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', marginBottom: '2rem', fontWeight: 500 }}>
-              Thursday, July 23rd, 2026
+              Mid-July 2026
             </p>
             
             <div style={{ display: 'flex', gap: '1.25rem', justifyContent: 'center', flexWrap: 'wrap' }}>
